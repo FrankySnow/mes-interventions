@@ -1,7 +1,11 @@
 <template>
   <q-layout view="hHh lpR fFf">
     <q-page-container>
-      <transition name="fade" mode="out-in">
+      <transition
+        enter-active-class="animated slideInLeft"
+        leave-active-class="animated slideOutRight"
+        mode="out-in"
+      >
         <keep-alive>
           <router-view />
         </keep-alive>
@@ -62,13 +66,5 @@ export default {
 
 .q-tab--inactive {
   opacity: 0.5;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s;
-}
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  opacity: 0;
 }
 </style>
