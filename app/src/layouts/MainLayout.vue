@@ -1,103 +1,74 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
-      <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="leftDrawerOpen = !leftDrawerOpen"
-        />
-
-        <q-toolbar-title>
-          Quasar App
-        </q-toolbar-title>
-
-        <div>Quasar v{{ $q.version }}</div>
-      </q-toolbar>
-    </q-header>
-
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-      content-class="bg-grey-1"
-    >
-      <q-list>
-        <q-item-label
-          header
-          class="text-grey-8"
-        >
-          Essential Links
-        </q-item-label>
-        <EssentialLink
-          v-for="link in essentialLinks"
-          :key="link.title"
-          v-bind="link"
-        />
-      </q-list>
-    </q-drawer>
-
+  <q-layout view="hHh lpR fFf">
     <q-page-container>
-      <router-view />
+      <transition name="fade" mode="out-in">
+        <keep-alive>
+          <router-view />
+        </keep-alive>
+      </transition>
     </q-page-container>
+
+    <q-footer elevated class="bg-red-8 text-white">
+      <q-tabs
+        v-model="tab"
+        no-caps
+        :dense="!$q.platform.is.desktop"
+        indicator-color="transparent"
+        :inline-label="$q.platform.is.desktop"
+      >
+        <q-route-tab
+          name="carte"
+          label="Carte"
+          to="carte"
+          icon="map"
+          class="col-4"
+        />
+        <q-route-tab
+          name="calendrier"
+          label="Calendrier"
+          to="calendrier"
+          icon="calendar_view_day"
+          class="col-4"
+        />
+        <q-route-tab
+          name="statistiques"
+          label="Statistiques"
+          to="statistiques"
+          icon="bar_chart"
+          class="col-4"
+        />
+      </q-tabs>
+    </q-footer>
   </q-layout>
 </template>
 
 <script>
-import EssentialLink from 'components/EssentialLink'
-
 export default {
   name: 'MainLayout',
 
-  components: {
-    EssentialLink
-  },
-
-  data () {
+  data() {
     return {
-      leftDrawerOpen: false,
-      essentialLinks: [
-        {
-          title: 'Docs',
-          caption: 'quasar.dev',
-          icon: 'school',
-          link: 'https://quasar.dev'
-        },
-        {
-          title: 'Github',
-          caption: 'github.com/quasarframework',
-          icon: 'code',
-          link: 'https://github.com/quasarframework'
-        },
-        {
-          title: 'Discord Chat Channel',
-          caption: 'chat.quasar.dev',
-          icon: 'chat',
-          link: 'https://chat.quasar.dev'
-        },
-        {
-          title: 'Forum',
-          caption: 'forum.quasar.dev',
-          icon: 'record_voice_over',
-          link: 'https://forum.quasar.dev'
-        },
-        {
-          title: 'Twitter',
-          caption: '@quasarframework',
-          icon: 'rss_feed',
-          link: 'https://twitter.quasar.dev'
-        },
-        {
-          title: 'Facebook',
-          caption: '@QuasarFramework',
-          icon: 'public',
-          link: 'https://facebook.quasar.dev'
-        }
-      ]
+      tab: 'carte',
     }
-  }
+  },
 }
 </script>
+
+<style>
+.q-tab__label {
+  font-size: 12px;
+  font-weight: 200;
+}
+
+.q-tab--inactive {
+  opacity: 0.5;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
+</style>
