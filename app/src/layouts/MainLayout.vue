@@ -23,7 +23,7 @@
         <q-route-tab
           name="carte"
           label="Carte"
-          to="carte"
+          to="/"
           icon="map"
           class="col-4"
         />
