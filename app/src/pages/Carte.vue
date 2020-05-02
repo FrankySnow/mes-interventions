@@ -11,8 +11,7 @@
         :zoom="zoom"
         :center="center"
         :options="mapOptions"
-        @mousedown="e => (lastClickedPoint = e.latlng)"
-        v-touch-hold.mouse="onHold"
+        @contextmenu="onHold"
       >
         <l-tile-layer :url="url" />
       </l-map>
@@ -26,13 +25,7 @@
           >
             <div class="text-h6">Nouvelle intervention</div>
             <q-space />
-            <q-btn
-              icon="close"
-              flat
-              round
-              dense
-              v-close-popup
-            />
+            <q-btn icon="close" flat round v-close-popup />
           </q-card-section>
 
           <q-card-section class="q-gutter-md items-center">
@@ -141,7 +134,6 @@ export default {
       },
       map: null,
       dialog: false,
-      lastClickedPoint: null,
       dialogHeight: 0,
       date: date.formatDate(Date.now(), 'YYYY/MM/DD'),
       loading: false,
@@ -157,8 +149,8 @@ export default {
       this.dialog = true
     },
     log: x => console.log(x),
-    onHold() {
-      const marker = L.marker(this.lastClickedPoint, {
+    onHold(event) {
+      const marker = L.marker(event.latlng, {
         draggable: true,
       })
       marker.on('click', () => {
