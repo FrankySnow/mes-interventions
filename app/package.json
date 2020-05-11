@@ -8,20 +8,23 @@
   "author": "Franky Snow <FrankySnow@users.noreply.github.com>",
   "private": true,
   "scripts": {
-    "dev": "quasar dev",
-    "build": "quasar build",
-    "build:pwa": "quasar build -m pwa",
+    "dev": "cross-env QENV=development quasar dev",
+    "build": "cross-env QENV=production quasar build",
+    "build:pwa": "cross-env QENV=production quasar build -m pwa",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore ./",
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
     "axios": "^0.18.1",
+    "mapbox-gl": "^1.10.0",
     "quasar": "^1.0.0"
   },
   "devDependencies": {
     "@quasar/app": "^1.0.0",
+    "@quasar/quasar-app-extension-qenv": "^1.0.1",
     "babel-eslint": "^10.0.1",
+    "cross-env": "^7.0.2",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.9.0",
     "eslint-loader": "^3.0.3",
