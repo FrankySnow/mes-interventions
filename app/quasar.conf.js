@@ -7,8 +7,9 @@
 
 // Configuration for your app
 // https://quasar.dev/quasar-cli/quasar-conf-js
+const { configure } = require('quasar/wrappers')
 
-module.exports = function(/* ctx */) {
+module.exports = configure(function(/* ctx */) {
   return {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
@@ -90,9 +91,10 @@ module.exports = function(/* ctx */) {
 
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
     devServer: {
-      https: false,
+      https: true,
       port: 8080,
-      open: true, // opens browser window automatically
+      open: false, // opens browser window automatically
+      // vueDevtools: true,
     },
 
     // animations: 'all', // --- includes all animations
@@ -190,4 +192,4 @@ module.exports = function(/* ctx */) {
       },
     },
   }
-}
+})
