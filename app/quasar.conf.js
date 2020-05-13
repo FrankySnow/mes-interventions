@@ -87,6 +87,14 @@ module.exports = configure(function(/* ctx */) {
           },
         })
       },
+
+      env: {
+        // Propagate env var for when QEnv is not available (Netlify build)
+        // QEnv will override it when available (dev environment)
+        MAPBOX_ACCESS_TOKEN: JSON.stringify(
+          process.env.MAPBOX_ACCESS_TOKEN
+        ),
+      },
     },
 
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
