@@ -8,6 +8,8 @@
 // Configuration for your app
 // https://quasar.dev/quasar-cli/quasar-conf-js
 const { configure } = require('quasar/wrappers')
+const BitBarWebpackProgressPlugin = require('bitbar-webpack-progress-plugin')
+const WebpackBuildNotifierPlugin = require('webpack-build-notifier')
 
 module.exports = configure(function(/* ctx */) {
   return {
@@ -68,6 +70,7 @@ module.exports = configure(function(/* ctx */) {
       // showProgress: false,
       // gzip: true,
       // analyze: true,
+      devtool: 'source-map',
 
       // Options below are automatically set depending on the env, set them if you want to override
       // preloadChunks: false,
@@ -86,6 +89,15 @@ module.exports = configure(function(/* ctx */) {
             ),
           },
         })
+        cfg.plugins.push(
+          // https://github.com/wk-j/bitbar-webpack-progress-plugin
+          new BitBarWebpackProgressPlugin(),
+          // https://github.com/RoccoC/webpack-build-notifier
+          new WebpackBuildNotifierPlugin({
+            showDuration: true,
+            suppressCompileStart: false,
+          })
+        )
       },
 
       env: {
