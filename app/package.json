@@ -15,6 +15,7 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
+    "@mapbox/mapbox-gl-geocoder": "^4.5.1",
     "@quasar/extras": "^1.0.0",
     "axios": "^0.18.1",
     "mapbox-gl": "^1.10.0",
