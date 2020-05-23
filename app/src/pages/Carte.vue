@@ -88,6 +88,7 @@ export default {
       .on(
         'clear',
         () =>
+          searchResultDialog &&
           searchResultDialog.hide() &&
           (searchResultDialog = null)
       )
