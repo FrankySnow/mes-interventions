@@ -48,6 +48,7 @@ export default {
         enableHighAccuracy: true,
       },
       trackUserLocation: true,
+      showAccuracyCircle: false,
     })
 
     const navigateControl = new mapboxgl.NavigationControl({
@@ -133,4 +134,7 @@ export default {
 <style lang="stylus">
 a.mapboxgl-ctrl-logo
   display: none
+
+.mapboxgl-user-location-dot, .mapboxgl-user-location-dot::before
+  background-color: gold
 </style>
