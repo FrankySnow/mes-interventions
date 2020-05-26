@@ -11,6 +11,7 @@
       "url": "https://localhost:8080",
       "webRoot": "${workspaceFolder}/src",
       "breakOnLoad": true,
+      "userDataDir": false,
       "sourceMapPathOverrides": {
         "webpack:///./src/*": "${webRoot}/*"
       }
