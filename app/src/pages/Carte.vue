@@ -108,6 +108,25 @@ export default {
       .addControl(navigateControl, 'top-right')
       .addControl(geolocateControl, 'top-right')
       .on('load', () => geolocateControl.trigger())
+
+    /**
+     * Évènement LAYOUT_RESIZED émis par MainLayout
+     * Fixe un bug lors de l'affichage du clavier virtuel
+     * ou de la rotation d'écran sur mobile :
+     * le canvas Mapbox n'est pas mis à jour à temps
+     */
+    this.$root.$on('LAYOUT_RESIZED', e => {
+      /**
+       * si un flyTo ou panTo est en cours
+       * (sélection d'un résultat de recherche par exemple)
+       */
+      if (this.map.isMoving()) {
+        this.map.once('moveend', e => this.map.resize())
+      } else {
+        this.map.resize()
+      }
+      console.debug('map resized') // FIXME: only in debug mode
+    })
   },
   methods: {
     log: e => console.log(e),
