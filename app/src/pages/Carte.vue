@@ -13,11 +13,16 @@
           @click="openDialog"
         />
       </q-page-sticky>
-      <q-dialog v-model="dialog" position="bottom" seamless>
-        <q-resize-observer
-          @resize="e => (dialogHeight = e.height)"
+      <q-dialog
+        v-model="dialog"
+        position="bottom"
+        seamless
+        @before-hide="onDialogResize"
+      >
+        <q-resize-observer @resize="onDialogResize" />
+        <nouvelle-intervention
+          v-intersection="intersectionOptions"
         />
-        <nouvelle-intervention />
       </q-dialog>
     </div>
   </q-page>
@@ -39,7 +44,13 @@ export default {
       map: null,
       dialog: false,
       Genève: [6.141, 46.202],
-      dialogHeight: 0,
+      intersectionOptions: {
+        handler: event =>
+          console.log(event.intersectionRect.height),
+        cfg: {
+          threshold: [0, 0.5, 1],
+        },
+      },
     }
   },
   mounted() {
@@ -127,22 +138,23 @@ export default {
       }
       console.debug('map resized') // FIXME: only in debug mode
     })
+    this.map.showPadding = true // FIXME: only in debug mode
   },
   methods: {
     log: e => console.log(e),
     openDialog() {
       this.dialog = true
-      this.map.easeTo({
-        padding: {
-          bottom: 300,
-        },
-      })
     },
     closeDialog() {
       this.dialog = false
+    },
+    onDialogResize(e) {
+      let height = e?.height ?? 0 // pas d'évènement resize quand on ferme le Dialog
+      let bottom = Math.max(height - 50, 0)
+      console.log(height)
       this.map.easeTo({
         padding: {
-          bottom: 0,
+          bottom: bottom,
         },
       })
     },
