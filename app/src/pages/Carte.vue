@@ -75,8 +75,17 @@ export default {
         draggable: true,
       },
       types: 'address',
+      // flyTo: false,
     })
       .on('result', result => {
+        console.log(this.map.isMoving())
+        geocoderControl.mapMarker.on('dragend', e => {
+          this.map.easeTo({
+            center: e.target._lngLat,
+          })
+          // geocoderControl.setInput(e.target._lngLat.lng)
+        })
+
         if (searchResultDialog) searchResultDialog.hide()
         searchResultDialog = this.$q.dialog({
           title: result.result.place_name,
