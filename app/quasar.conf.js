@@ -11,12 +11,15 @@ const { configure } = require('quasar/wrappers')
 const BitBarWebpackProgressPlugin = require('bitbar-webpack-progress-plugin')
 const WebpackBuildNotifierPlugin = require('webpack-build-notifier')
 
-module.exports = function(/* ctx */) {
+module.exports = configure(function(/* ctx */) {
   return {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://quasar.dev/quasar-cli/cli-documentation/boot-files
-    boot: ['axios'],
+    boot: [
+      'axios',
+      'mapboxgl', // facultatif
+    ],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
     css: ['app.css'],
@@ -53,7 +56,7 @@ module.exports = function(/* ctx */) {
       directives: [],
 
       // Quasar plugins
-      plugins: [],
+      plugins: ['Notify', 'Dialog'],
     },
 
     // https://quasar.dev/quasar-cli/cli-documentation/supporting-ie
@@ -99,13 +102,22 @@ module.exports = function(/* ctx */) {
           })
         )
       },
+
+      env: {
+        // Propagate env var for when QEnv is not available (Netlify build)
+        // QEnv will override it when available (dev environment)
+        MAPBOX_ACCESS_TOKEN: JSON.stringify(
+          process.env.MAPBOX_ACCESS_TOKEN
+        ),
+      },
     },
 
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
     devServer: {
-      https: false,
+      https: true,
       port: 8080,
-      open: true, // opens browser window automatically
+      open: false, // opens browser window automatically
+      // vueDevtools: true,
     },
 
     // animations: 'all', // --- includes all animations
@@ -203,4 +215,4 @@ module.exports = function(/* ctx */) {
       },
     },
   }
-}
+})
