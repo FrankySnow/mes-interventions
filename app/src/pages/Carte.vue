@@ -2,17 +2,6 @@
   <q-page class="flex flex-center">
     <div class="absolute-full">
       <div ref="map" class="fit" @contextmenu="log"></div>
-      <q-page-sticky
-        position="bottom-right"
-        :offset="[18, 18]"
-      >
-        <q-btn
-          fab
-          icon="add"
-          color="red"
-          @click="openDialog"
-        />
-      </q-page-sticky>
       <q-dialog
         v-model="dialog"
         position="bottom"
