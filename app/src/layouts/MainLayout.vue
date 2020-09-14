@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="hHh lpR fFf" @resize="onResize">
+  <q-layout view="hHh lpR fFf">
     <q-page-container>
       <transition
         enter-active-class="animated slideInLeft"
@@ -54,12 +54,6 @@ export default {
     return {
       tab: 'carte',
     }
-  },
-  methods: {
-    onResize() {
-      this.$root.$emit('LAYOUT_RESIZED')
-      console.log('LAYOUT_RESIZED') // FIXME: only in debug mode
-    },
   },
 }
 </script>
