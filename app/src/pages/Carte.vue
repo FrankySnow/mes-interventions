@@ -26,6 +26,13 @@
           position="top-right"
           :visualizePitch="true"
         />
+        <mapbox-geolocate-control
+          :positionOptions="{
+            enableHighAccuracy: true,
+          }"
+          :trackUserLocation="true"
+          :showAccuracyCircle="false"
+        />
       </mapbox-map>
     </div>
   </q-page>
@@ -37,6 +44,7 @@ import {
   MapboxNavigationControl,
   MapboxGeocoder,
 } from '@studiometa/vue-mapbox-gl'
+import MapboxGeolocateControl from '@studiometa/vue-mapbox-gl/src/components/MapboxGeolocateControl.vue' // FIXME: component not exported in the build
 import 'mapbox-gl/dist/mapbox-gl.css'
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'
 
@@ -45,6 +53,7 @@ export default {
   components: {
     MapboxMap,
     MapboxNavigationControl,
+    MapboxGeolocateControl,
     MapboxGeocoder,
   },
   data() {
