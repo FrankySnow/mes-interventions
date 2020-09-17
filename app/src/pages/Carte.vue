@@ -22,7 +22,10 @@
             types: 'address',
           }"
         />
-        <mapbox-navigation-control position="top-right" />
+        <mapbox-navigation-control
+          position="top-right"
+          :visualizePitch="true"
+        />
       </mapbox-map>
     </div>
   </q-page>
