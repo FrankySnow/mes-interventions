@@ -53,8 +53,8 @@ import {
   MapboxNavigationControl,
   MapboxGeocoder,
   MapboxMarker,
+  MapboxGeolocateControl,
 } from '@studiometa/vue-mapbox-gl'
-import MapboxGeolocateControl from '@studiometa/vue-mapbox-gl/src/components/MapboxGeolocateControl.vue' // FIXME: component not exported in the build
 import 'mapbox-gl/dist/mapbox-gl.css'
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'
 
