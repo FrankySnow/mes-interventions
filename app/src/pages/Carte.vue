@@ -4,7 +4,7 @@
       <mapbox-map
         :access-token="token"
         map-style="mapbox://styles/frankysnow/ck9yrtmum04rv1ipbjlk6ysvy/draft?optimize=true"
-        :center="[6.141, 46.202]"
+        :center="initialCenter"
         :attribution-control="false"
         :zoom="12"
         class="fit"
@@ -21,7 +21,7 @@
           @mb-result="onGeocoderResult"
         />
         <mapbox-marker
-          :lng-lat="searchResultLngLat"
+          :lng-lat="searchResult.center"
           v-if="showSearchResultMarker"
           color="gold"
         />
@@ -36,12 +36,24 @@
           :trackUserLocation="true"
           :showAccuracyCircle="false"
         />
-        <!-- <q-dialog
-        v-model="bottomDialog"
-        position="bottom"
-        seamless
-      >
-      </q-dialog> -->
+        <q-dialog
+          v-model="showSearchResultDialog"
+          position="bottom"
+          :seamless="!isAddressSelected"
+          @hide="isAddressSelected = false"
+          ref="bottomDialog"
+        >
+          <search-result
+            :searchResult="searchResult"
+            v-if="!isAddressSelected"
+            @addressSelected="isAddressSelected = true"
+          />
+          <nouvelle-intervention
+            v-if="isAddressSelected"
+            :address="searchResult.place_name"
+            @saved="() => this.$refs.bottomDialog.hide()"
+          />
+        </q-dialog>
       </mapbox-map>
     </div>
   </q-page>
@@ -57,6 +69,8 @@ import {
 } from '@studiometa/vue-mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'
+import SearchResult from 'components/SearchResult.vue'
+import NouvelleIntervention from 'components/NouvelleIntervention.vue'
 
 export default {
   name: 'Carte',
@@ -66,24 +80,32 @@ export default {
     MapboxGeolocateControl,
     MapboxGeocoder,
     MapboxMarker,
+    SearchResult,
+    NouvelleIntervention,
   },
   data() {
     return {
       token: process.env.MAPBOX_ACCESS_TOKEN,
       map: null,
-      searchResultLngLat: null,
+      initialCenter: [6.141, 46.202],
+      searchResult: null,
       showSearchResultMarker: false,
+      showSearchResultDialog: false,
+      isAddressSelected: false,
+      isMapInteractive: true,
     }
   },
   methods: {
     async onGeocoderResult(e) {
       this.showSearchResultMarker = true
-      this.searchResultLngLat = e.result.center
+      this.searchResult = e.result
+      this.showSearchResultDialog = true
       // Nécessaire pour que flyTo() démarre après l'insertion du Marker
       await this.$nextTick()
       this.map.flyTo({
         center: e.result.center,
-        zoom: 17,
+        zoom: 18,
+        pitch: 60,
       })
     },
   },

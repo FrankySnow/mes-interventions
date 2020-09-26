@@ -1,7 +1,7 @@
 <template>
-  <q-card style="height:70vh">
+  <q-card style="height:65vh">
     <q-card-section class="row items-center q-pb-none">
-      <div class="text-h6">Nouvelle intervention</div>
+      <div class="text-h6">Créer intervention</div>
       <q-space />
       <q-btn icon="close" flat round v-close-popup />
     </q-card-section>
@@ -32,7 +32,7 @@
           </q-icon>
         </template>
       </q-input>
-      <q-input label="Adresse" outlined>
+      <q-input label="Adresse" outlined :value="address">
         <template v-slot:before>
           <q-icon name="place" />
         </template>
@@ -75,6 +75,12 @@ import { date } from 'quasar'
 
 export default {
   name: 'NouvelleIntervention',
+  props: {
+    address: {
+      type: String,
+      default: "",
+    }
+  },
   data() {
     return {
       date: date.formatDate(Date.now(), 'YYYY/MM/DD'),
@@ -89,6 +95,7 @@ export default {
         this.$q.notify(
           "C'est sauvegardé mais pas pour de vrai 🤣"
         )
+        this.$emit('saved')
       }, 2000)
     },
   },
