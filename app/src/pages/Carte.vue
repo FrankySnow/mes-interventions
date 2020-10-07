@@ -70,6 +70,7 @@ import {
   MapboxGeolocateControl,
 } from '@studiometa/vue-mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
+import promisify from 'map-promisified'
 import SearchResult from 'components/SearchResult.vue'
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'
 import NouvelleIntervention from 'components/NouvelleIntervention.vue'
@@ -99,6 +100,7 @@ export default {
   methods: {
     onMapCreated(mapInstance) {
       this.map = mapInstance // ⚠️ propriété non réactive
+      this.mapPromisified = promisify(mapInstance) // ⚠️ propriété non réactive
       this.map.showPadding = process.env.DEV
       this.map.setPadding({
         top: 60,
@@ -120,53 +122,28 @@ export default {
       }
 
       /**
-       * # 😠 Problème
        * Lorsqu'un résultat du geocoder est sélectionné sur mobile, le clavier virtuel disparaît
        * ce qui émet un resize via le ResizeObserver (2 pour être précis).
        * Le flyTo qui est déclenché calcule la position de la caméra sur la base du
        * viewport réduit par le clavier virtuel avant le resize, et ne corrige pas cette position.
        * La caméra arrive donc à destination avec un décalage correspondant à ~ la moitié de la hauteur
        * du clavier virtuel.
-       *
-       * # 💡 Pistes explorées
-       * 1. empêcher le clavier virtuel de disparaître immédiatement => mauvaise UX, difficile à maintenir
-       * 2. détecter l'apparition du clavier virtuel en amont
-       *    - si un resize est émis à <200ms du focus sur un input => difficile à maintenir & garantir
-       *    - en détectant la plateforme => foireux (émulation sur devtools impossible)
-       * 3. lancer le flyTo après le resize ou max ~250ms si pas de resize (desktop...)
-       * 4. empêcher la réduction du viewport ? => impossible
-       * 5. détecter le resize en cours par un movestart/move/moveend ?
-       * 6. interrompre le flyTo lors du resize
-       *
-       * # 😃 Solution
-       * ## mix des pistes 3/5/6 :
-       * - On lance le flyTo et si un resize arrive avant la fin, on relance le flyTo qui aura
-       * cette fois calculé les bonnes coordonnées.
-       * - On doit impérativement détacher les écouteurs d'évènement à la fin de l'animation.
-       * - Pour savoir si l'animation est terminée, le `moveend` ne suffit pas car un `moveend` est émis
-       * après chaque resize.
-       * - On doit donc vérifier si le centre de la map correspond aux coordonnées attendues.
-       *
+       * 
+       * Ceci est un refactoring de la solution du commit précédent faisant appel à map-promisified,
+       * ce qui permet d'utiliser une Promise qui se résout à la fin de l'animation qu'elle déclenche
+       * (ce qui arrive notamment à chaque resize).
+       * Il faut donc vérifier que la map ne soit plus en mouvement pour pouvoir détacher
+       * l'écouteur d'évènement.
        */
-      const onMoveEnd = () => {
-        const POSITION_TOLERANCE = 0.001
-        const { lng, lat } = this.map.getCenter()
-        const [expectedLng, expectedLat] = options.center
-        if (
-          Math.abs(lng - expectedLng) < POSITION_TOLERANCE
-        &&
-          Math.abs(lat - expectedLat) < POSITION_TOLERANCE
-        ) {
-          this.map.off('resize', flyTo)
-          this.map.off('moveend', onMoveEnd)
+      const flyToAndThenRemoveListener = async () => {
+        await this.mapPromisified.flyTo(options)
+        if(!this.map.isMoving()) {
+          this.map.off('resize', flyToAndThenRemoveListener)
         }
       }
-      
-      const flyTo = () => this.map.flyTo(options)
 
-      flyTo()
-        .on('resize', flyTo)
-        .on('moveend', onMoveEnd)
+      this.map.on('resize', flyToAndThenRemoveListener)
+      await flyToAndThenRemoveListener()
     },
     async onDialogResize(event) {
       /**
