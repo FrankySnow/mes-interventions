@@ -114,7 +114,7 @@ module.exports = configure(function(/* ctx */) {
       https: true,
       port: 8080,
       open: false, // opens browser window automatically
-      // vueDevtools: true,
+      host: '0.0.0.0',
     },
 
     // animations: 'all', // --- includes all animations
