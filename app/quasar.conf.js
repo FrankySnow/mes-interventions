@@ -84,8 +84,9 @@ module.exports = configure(function(/* ctx */) {
           loader: 'eslint-loader',
           exclude: /node_modules/,
           options: {
+            // eslint-disable-next-line global-require
             formatter: require('eslint').CLIEngine.getFormatter(
-              'stylish'
+              'stylish',
             ),
           },
         })
@@ -96,7 +97,7 @@ module.exports = configure(function(/* ctx */) {
           new WebpackBuildNotifierPlugin({
             showDuration: true,
             suppressCompileStart: false,
-          })
+          }),
         )
       },
 
@@ -104,7 +105,7 @@ module.exports = configure(function(/* ctx */) {
         // Propagate env var for when QEnv is not available (Netlify build)
         // QEnv will override it when available (dev environment)
         MAPBOX_ACCESS_TOKEN: JSON.stringify(
-          process.env.MAPBOX_ACCESS_TOKEN
+          process.env.MAPBOX_ACCESS_TOKEN,
         ),
       },
     },

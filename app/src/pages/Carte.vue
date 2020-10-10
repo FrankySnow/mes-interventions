@@ -53,7 +53,7 @@
           <nouvelle-intervention
             v-if="isAddressSelected"
             :address="searchResult.place_name"
-            @saved="() => this.$refs.bottomDialog.hide()"
+            @saved="onInterventionSaved"
           />
         </q-dialog>
       </mapbox-map>
@@ -70,10 +70,11 @@ import {
   MapboxGeolocateControl,
 } from '@studiometa/vue-mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import promisify from 'map-promisified'
-import SearchResult from 'components/SearchResult.vue'
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'
-import NouvelleIntervention from 'components/NouvelleIntervention.vue'
+import promisify from 'map-promisified'
+
+import SearchResult from '../components/SearchResult.vue'
+import NouvelleIntervention from '../components/NouvelleIntervention.vue'
 
 export default {
   name: 'Carte',
@@ -128,7 +129,7 @@ export default {
        * viewport réduit par le clavier virtuel avant le resize, et ne corrige pas cette position.
        * La caméra arrive donc à destination avec un décalage correspondant à ~ la moitié de la hauteur
        * du clavier virtuel.
-       * 
+       *
        * Ceci est un refactoring de la solution du commit précédent faisant appel à map-promisified,
        * ce qui permet d'utiliser une Promise qui se résout à la fin de l'animation qu'elle déclenche
        * (ce qui arrive notamment à chaque resize).
@@ -137,7 +138,7 @@ export default {
        */
       const flyToAndThenRemoveListener = async () => {
         await this.mapPromisified.flyTo(options)
-        if(!this.map.isMoving()) {
+        if (!this.map.isMoving()) {
           this.map.off('resize', flyToAndThenRemoveListener)
         }
       }
@@ -162,8 +163,11 @@ export default {
       const bottom = Math.max(dialogHeight - footerHeight, 0)
 
       this.map.setPadding({
-        bottom: bottom,
+        bottom,
       })
+    },
+    onInterventionSaved(/* event */) {
+      this.$refs.bottomDialog.hide()
     },
   },
 }

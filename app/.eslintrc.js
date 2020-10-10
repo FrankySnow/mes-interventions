@@ -6,32 +6,33 @@ module.exports = {
 
   parserOptions: {
     parser: 'babel-eslint',
-    ecmaVersion: 2018, // Allows for the parsing of modern ECMAScript features
-    sourceType: 'module' // Allows for the use of imports
+    sourceType: 'module', // Allows for the use of imports
   },
 
+  // https://eslint.org/docs/user-guide/configuring#specifying-environments
   env: {
-    browser: true
+    browser: true,
+    es2021: true,
   },
 
   // Rules order is important, please avoid shuffling them
   extends: [
     // Base ESLint recommended rules
-    // 'eslint:recommended',
-
+    'eslint:recommended',
+    'airbnb-base',
 
     // Uncomment any of the lines below to choose desired strictness,
     // but leave only one uncommented!
     // See https://eslint.vuejs.org/rules/#available-rules
-    'plugin:vue/essential', // Priority A: Essential (Error Prevention)
+    // 'plugin:vue/essential', // Priority A: Essential (Error Prevention)
     // 'plugin:vue/strongly-recommended' // Priority B: Strongly Recommended (Improving Readability)
-    // 'plugin:vue/recommended' // Priority C: Recommended (Minimizing Arbitrary Choices and Cognitive Overhead)
+    'plugin:vue/recommended', // Priority C: Recommended (Minimizing Arbitrary Choices and Cognitive Overhead)
 
     // https://github.com/prettier/eslint-config-prettier#installation
     // usage with Prettier, provided by 'eslint-config-prettier'.
     'prettier',
-    
-    'prettier/vue'
+
+    'prettier/vue',
   ],
 
   plugins: [
@@ -45,20 +46,68 @@ module.exports = {
   ],
 
   globals: {
-    'ga': true, // Google Analytics
-    'cordova': true,
-    '__statics': true,
-    'process': true,
-    'Capacitor': true,
-    'chrome': true
+    ga: true, // Google Analytics
+    cordova: true,
+    __statics: true,
+    process: true,
+    Capacitor: true,
+    chrome: true,
   },
 
   // add your custom rules here
   rules: {
-    'prefer-promise-reject-errors': 'off',
+    /**
+     * Require or disallow semicolons instead of ASI
+     * https://eslint.org/docs/rules/semi
+     */
+    semi: ['error', 'never'],
 
+    /**
+     * Enforce consistent indentation
+     * https://eslint.org/docs/rules/indent
+     */
+    indent: ['error', 2],
 
-    // allow debugger during development only
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'
-  }
+    /**
+     * Require parens in arrow function arguments
+     * https://eslint.org/docs/rules/arrow-parens
+     */
+    'arrow-parens': ['warn', 'as-needed'],
+
+    /**
+     * Require or disallow named `function` expressions
+     * https://eslint.org/docs/rules/func-names
+     */
+    'func-names': 'off',
+
+    /**
+     * Disallow the use of console
+     * https://eslint.org/docs/rules/no-console
+     */
+    'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+
+    /**
+     * Disallow the use of debugger
+     * https://eslint.org/docs/rules/no-debugger
+     */
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+
+    /**
+     * Forbid the use of extraneous packages
+     * https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/no-extraneous-dependencies.md
+     */
+    'import/no-extraneous-dependencies': 'off',
+
+    /**
+     * Enforce a convention in module import order
+     * https://github.com/benmosher/eslint-plugin-import/blob/v2.22.1/docs/rules/order.md
+     */
+    'import/order': ['warn', { 'newlines-between': 'always' }],
+
+    /**
+     * Ensures an imported module can be resolved to a module on the local filesystem
+     * https://github.com/benmosher/eslint-plugin-import/blob/v2.22.1/docs/rules/no-unresolved.md
+     */
+    'import/no-unresolved': 'off',
+  },
 }

@@ -3,14 +3,14 @@
     <q-card-section class="row items-center q-pb-none">
       <div class="text-h6">Créer intervention</div>
       <q-space />
-      <q-btn icon="close" flat round v-close-popup />
+      <q-btn v-close-popup icon="close" flat round />
     </q-card-section>
 
     <q-card-section class="q-gutter-md items-center">
       <q-input
+        v-model="date"
         label="Date"
         outlined
-        v-model="date"
         mask="date"
       >
         <template v-slot:before>
@@ -26,7 +26,7 @@
               <q-date
                 v-model="date"
                 color="red"
-                @input="() => $refs.qDateProxy.hide()"
+                @input="onDateInput"
               />
             </q-popup-proxy>
           </q-icon>
@@ -61,9 +61,9 @@
         <q-btn
           :loading="loading"
           color="red"
-          @click="simulateProgress"
-          label="sauvegarder"
           class="full-width"
+          label="sauvegarder"
+          @click="simulateProgress"
         />
       </div>
     </q-card-section>
@@ -98,6 +98,9 @@ export default {
         this.$emit('saved')
       }, 2000)
     },
+    onDateInput(/* event */) {
+      this.$refs.qDateProxy.hide()
+    }
   },
 }
 </script>

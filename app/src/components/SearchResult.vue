@@ -18,10 +18,10 @@
         label="Annuler"
       />
       <q-btn
-        @click="$emit('addressSelected')"
         flat
         color="red"
         label="Créer intervention"
+        @click="$emit('addressSelected')"
       />
     </q-card-actions>
   </q-card>
@@ -30,7 +30,10 @@
 <script>
 export default {
   props: {
-    searchResult: Object,
+    searchResult: {
+      type: Object,
+      default: () => ({}),
+    }
   },
 }
 </script>
