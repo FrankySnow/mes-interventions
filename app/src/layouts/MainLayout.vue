@@ -26,6 +26,7 @@
           to="/"
           icon="map"
           class="col-4"
+          :ripple="{ early: true /** workaround */}"
         />
         <q-route-tab
           name="calendrier"
@@ -33,6 +34,7 @@
           to="calendrier"
           icon="calendar_view_day"
           class="col-4"
+          :ripple="{ early: true /** workaround */ }"
         />
         <q-route-tab
           name="statistiques"
@@ -40,6 +42,7 @@
           to="statistiques"
           icon="bar_chart"
           class="col-4"
+          :ripple="{ early: true /** workaround */ }"
         />
       </q-tabs>
     </q-footer>
