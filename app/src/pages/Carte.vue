@@ -50,9 +50,9 @@
             :search-result="searchResult"
             @addressSelected="isAddressSelected = true"
           />
-          <nouvelle-intervention
+          <new-intervention
             v-if="isAddressSelected"
-            :address="searchResult.place_name"
+            :search-result="searchResult"
             @saved="onInterventionSaved"
           />
         </q-dialog>
@@ -74,7 +74,7 @@ import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'
 import promisify from 'map-promisified'
 
 import SearchResult from '../components/SearchResult.vue'
-import NouvelleIntervention from '../components/NouvelleIntervention.vue'
+import NewIntervention from '../components/NewIntervention.vue'
 
 export default {
   name: 'Carte',
@@ -85,7 +85,7 @@ export default {
     MapboxGeocoder,
     MapboxMarker,
     SearchResult,
-    NouvelleIntervention,
+    NewIntervention,
   },
   data() {
     return {
