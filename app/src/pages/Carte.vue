@@ -36,12 +36,34 @@
           :track-user-location="true"
           :show-accuracy-circle="false"
         />
+        <mapbox-source
+          id="interventionsData"
+          :options="{
+            type: 'geojson',
+            data: interventionsData,
+          }"
+        />
+        <mapbox-layer
+          id="interventions"
+          :options="{
+            source: 'interventionsData',
+            type: 'circle',
+            paint: {
+              'circle-color': 'gold',
+              'circle-radius': 5,
+              'circle-stroke-width': 1,
+            },
+          }"
+        />
         <q-dialog
           ref="bottomDialog"
           v-model="showSearchResultDialog"
           position="bottom"
           :seamless="!isAddressSelected"
-          @hide="isAddressSelected = false"
+          @hide="() => {
+            isAddressSelected = false
+            showSearchResultMarker = false
+          }"
           @before-hide="onDialogResize"
         >
           <q-resize-observer @resize="onDialogResize" />
@@ -67,6 +89,8 @@ import {
   MapboxNavigationControl,
   MapboxGeocoder,
   MapboxMarker,
+  MapboxSource,
+  MapboxLayer,
   MapboxGeolocateControl,
 } from '@studiometa/vue-mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
@@ -84,7 +108,9 @@ export default {
     MapboxGeolocateControl,
     MapboxGeocoder,
     MapboxMarker,
+    MapboxSource,
     SearchResult,
+    MapboxLayer,
     NewIntervention,
   },
   data() {
@@ -96,6 +122,11 @@ export default {
       showSearchResultDialog: false,
       isAddressSelected: false,
       isMapInteractive: true,
+      interventionsData: (() =>
+        this.$q.sessionStorage.getItem('interventionsData') || {
+          type: 'FeatureCollection',
+          features: [],
+        })(),
     }
   },
   methods: {
@@ -166,7 +197,9 @@ export default {
         bottom,
       })
     },
-    onInterventionSaved(/* event */) {
+    onInterventionSaved(adresse) {
+      this.interventionsData.features.push(adresse)
+      this.$q.sessionStorage.set('interventionsData', this.interventionsData)
       this.$refs.bottomDialog.hide()
     },
   },

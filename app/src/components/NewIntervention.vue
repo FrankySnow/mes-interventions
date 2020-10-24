@@ -125,9 +125,10 @@ export default {
       this.loading = true
       setTimeout(() => {
         this.loading = false
+
         this.$q.notify("C'est sauvegardé mais pas pour de vrai 🤣")
-        this.$emit('saved')
-      }, 1000)
+        this.$emit('saved', this.newInterventionData.adresse)
+      }, 500)
     },
     onDateInput(/* event */) {
       this.$refs.qDateProxy.hide()

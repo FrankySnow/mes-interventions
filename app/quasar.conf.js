@@ -53,7 +53,12 @@ module.exports = configure(function(/* ctx */) {
       directives: [],
 
       // Quasar plugins
-      plugins: ['Notify', 'Dialog'],
+      plugins: [
+        'Notify',
+        'Dialog',
+        'LocalStorage',
+        'SessionStorage'
+      ],
     },
 
     // https://quasar.dev/quasar-cli/cli-documentation/supporting-ie
@@ -85,9 +90,7 @@ module.exports = configure(function(/* ctx */) {
           exclude: /node_modules/,
           options: {
             // eslint-disable-next-line global-require
-            formatter: require('eslint').CLIEngine.getFormatter(
-              'stylish',
-            ),
+            formatter: require('eslint').CLIEngine.getFormatter('stylish'),
           },
         })
         cfg.plugins.push(
@@ -104,9 +107,7 @@ module.exports = configure(function(/* ctx */) {
       env: {
         // Propagate env var for when QEnv is not available (Netlify build)
         // QEnv will override it when available (dev environment)
-        MAPBOX_ACCESS_TOKEN: JSON.stringify(
-          process.env.MAPBOX_ACCESS_TOKEN,
-        ),
+        MAPBOX_ACCESS_TOKEN: JSON.stringify(process.env.MAPBOX_ACCESS_TOKEN),
       },
     },
 
