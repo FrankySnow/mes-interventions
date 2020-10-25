@@ -1,5 +1,55 @@
 <template>
   <q-page class="flex flex-center">
+    <q-drawer
+      v-model="rightDrawer"
+      :width="200"
+      behavior="mobile"
+      side="right"
+      bordered
+      elevated
+      content-class="bg-grey-3"
+    >
+      <q-list>
+        <q-item-label header>
+          Debugging
+        </q-item-label>
+
+        <q-item v-ripple>
+          <q-item-section>
+            <q-item-label>Show padding</q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-toggle
+              v-model="showPadding"
+              checked-icon="check"
+              unchecked-icon="clear"
+              color="green"
+            />
+          </q-item-section>
+        </q-item>
+
+        <q-item>
+          <q-item-section>
+            <q-item-label>Clear storage</q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-btn v-ripple icon="delete" unelevated>
+              <q-menu>
+                <q-btn
+                  v-ripple
+                  v-close-popup
+                  color="red"
+                  icon="warning"
+                  @click="clearStorage"
+                />
+              </q-menu>
+            </q-btn>
+          </q-item-section>
+        </q-item>
+
+        <q-separator spaced />
+      </q-list>
+    </q-drawer>
     <div class="absolute-full">
       <mapbox-map
         :access-token="token"
@@ -127,13 +177,20 @@ export default {
           type: 'FeatureCollection',
           features: [],
         })(),
+      rightDrawer: false,
+      showPadding: false,
     }
+  },
+  watch: {
+    showPadding(state) {
+      this.map.showPadding = state
+    },
   },
   methods: {
     onMapCreated(mapInstance) {
       this.map = mapInstance // ⚠️ propriété non réactive
       this.mapPromisified = promisify(mapInstance) // ⚠️ propriété non réactive
-      this.map.showPadding = process.env.DEV
+      this.map.showPadding = this.showPadding
       this.map.setPadding({
         top: 60,
       })
@@ -202,6 +259,13 @@ export default {
       this.$q.sessionStorage.set('interventionsData', this.interventionsData)
       this.$refs.bottomDialog.hide()
     },
+    clearStorage(/* event */) {
+      this.$q.sessionStorage.remove('interventionsData')
+      this.interventionsData = {
+        type: 'FeatureCollection',
+        features: [],
+      }
+    },
   },
 }
 </script>
@@ -209,4 +273,6 @@ export default {
 <style lang="stylus">
 .mapboxgl-ctrl > a.mapboxgl-ctrl-logo
   display: none
+.q-drawer__opener
+  width: 30px
 </style>
