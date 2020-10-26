@@ -99,9 +99,10 @@
             source: 'interventionsData',
             type: 'circle',
             paint: {
-              'circle-color': 'gold',
-              'circle-radius': 5,
-              'circle-stroke-width': 1,
+              'circle-color': 'white',
+              'circle-radius': 4,
+              'circle-stroke-width': 4,
+              'circle-stroke-color': 'gold',
             },
           }"
         />
