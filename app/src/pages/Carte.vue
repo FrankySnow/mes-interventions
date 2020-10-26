@@ -105,30 +105,32 @@
             },
           }"
         />
-        <q-dialog
-          ref="bottomDialog"
-          v-model="showSearchResultDialog"
-          position="bottom"
-          :seamless="!isAddressSelected"
-          @hide="() => {
+      </mapbox-map>
+      <q-dialog
+        ref="bottomDialog"
+        v-model="showSearchResultDialog"
+        position="bottom"
+        :seamless="!isAddressSelected"
+        @hide="
+          () => {
             isAddressSelected = false
             showSearchResultMarker = false
-          }"
-          @before-hide="onDialogResize"
-        >
-          <q-resize-observer @resize="onDialogResize" />
-          <search-result
-            v-if="!isAddressSelected"
-            :search-result="searchResult"
-            @addressSelected="isAddressSelected = true"
-          />
-          <new-intervention
-            v-if="isAddressSelected"
-            :search-result="searchResult"
-            @saved="onInterventionSaved"
-          />
-        </q-dialog>
-      </mapbox-map>
+          }
+        "
+        @before-hide="onDialogResize"
+      >
+        <q-resize-observer @resize="onDialogResize" />
+        <search-result
+          v-if="!isAddressSelected"
+          :search-result="searchResult"
+          @addressSelected="isAddressSelected = true"
+        />
+        <new-intervention
+          v-if="isAddressSelected"
+          :search-result="searchResult"
+          @saved="onInterventionSaved"
+        />
+      </q-dialog>
     </div>
   </q-page>
 </template>
