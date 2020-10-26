@@ -93,6 +93,12 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
 
     /**
+     * Disallow registering components that are not used inside templates
+     * https://eslint.vuejs.org/rules/no-unused-components.html
+     */
+    'vue/no-unused-components': 'warn',
+
+    /**
      * Forbid the use of extraneous packages
      * https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/no-extraneous-dependencies.md
      */
