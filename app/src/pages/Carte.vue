@@ -109,7 +109,7 @@
       </mapbox-map>
       <q-dialog
         ref="bottomDialog"
-        v-model="showSearchResultDialog"
+        :value="bottomDialogState.matches('visible')"
         position="bottom"
         :seamless="!isAddressSelected"
         @hide="
@@ -149,9 +149,28 @@ import {
 import 'mapbox-gl/dist/mapbox-gl.css'
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'
 import promisify from 'map-promisified'
+import { Machine, interpret } from 'xstate'
 
 import SearchResult from '../components/SearchResult.vue'
 import NewIntervention from '../components/NewIntervention.vue'
+
+const bottomDialogMachine = Machine({
+  id: 'bottomDialogMachine',
+  initial: 'hidden',
+  states: {
+    hidden: {
+      on: {
+        SHOW: 'visible',
+      },
+    },
+    visible: {
+      on: {
+        HIDE: 'hidden',
+      },
+    },
+  },
+  strict: true,
+})
 
 export default {
   name: 'Carte',
@@ -172,9 +191,7 @@ export default {
       initialCenter: [6.141, 46.202],
       searchResult: null,
       showSearchResultMarker: false,
-      showSearchResultDialog: false,
       isAddressSelected: false,
-      isMapInteractive: true,
       interventionsData: (() =>
         this.$q.sessionStorage.getItem('interventionsData') || {
           type: 'FeatureCollection',
@@ -182,12 +199,21 @@ export default {
         })(),
       rightDrawer: false,
       showPadding: false,
+      bottomDialogService: interpret(bottomDialogMachine),
+      bottomDialogState: bottomDialogMachine.initialState,
     }
   },
   watch: {
     showPadding(state) {
       this.map.showPadding = state
     },
+  },
+  created() {
+    this.bottomDialogService
+      .onTransition(newState => {
+        this.bottomDialogState = newState
+      })
+      .start()
   },
   methods: {
     onMapCreated(mapInstance) {
@@ -201,7 +227,7 @@ export default {
     async onGeocoderResult(event) {
       this.showSearchResultMarker = true
       this.searchResult = event.result
-      this.showSearchResultDialog = true
+      this.bottomDialogService.send('SHOW')
 
       /**
        * Permet de mettre à jour le DOM (insérer le Marker) avant de démarrer le flyTo
@@ -260,7 +286,7 @@ export default {
     onInterventionSaved(adresse) {
       this.interventionsData.features.push(adresse)
       this.$q.sessionStorage.set('interventionsData', this.interventionsData)
-      this.$refs.bottomDialog.hide()
+      this.bottomDialogService.send('HIDE')
     },
     clearStorage(/* event */) {
       this.$q.sessionStorage.remove('interventionsData')
