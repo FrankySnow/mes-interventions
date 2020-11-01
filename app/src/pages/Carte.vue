@@ -69,9 +69,13 @@
           :fly-to="false"
           placeholder="Rechercher..."
           @mb-result="onGeocoderResult"
+          @mb-loading="mapService.send('SEARCH')"
         />
         <mapbox-marker
-          v-if="showSearchResultMarker"
+          v-if="
+            mapState.matches('searchResult') ||
+              mapState.matches('newIntervention')
+          "
           :lng-lat="searchResult.center"
           color="gold"
         />
@@ -108,26 +112,23 @@
         />
       </mapbox-map>
       <q-dialog
-        ref="bottomDialog"
-        :value="bottomDialogState.matches('visible')"
-        position="bottom"
-        :seamless="!isAddressSelected"
-        @hide="
-          () => {
-            isAddressSelected = false
-            showSearchResultMarker = false
-          }
+        :value="
+          mapState.matches('searchResult') ||
+            mapState.matches('newIntervention')
         "
+        position="bottom"
+        :seamless="mapState.matches('searchResult')"
+        @hide="mapService.send('HIDE')"
         @before-hide="onDialogResize"
       >
         <q-resize-observer @resize="onDialogResize" />
         <search-result
-          v-if="!isAddressSelected"
+          v-if="mapState.matches('searchResult')"
           :search-result="searchResult"
-          @addressSelected="isAddressSelected = true"
+          @addressSelected="mapService.send('SELECT_ADDRESS')"
         />
         <new-intervention
-          v-if="isAddressSelected"
+          v-if="mapState.matches('newIntervention')"
           :search-result="searchResult"
           @saved="onInterventionSaved"
         />
@@ -154,18 +155,34 @@ import { Machine, interpret } from 'xstate'
 import SearchResult from '../components/SearchResult.vue'
 import NewIntervention from '../components/NewIntervention.vue'
 
-const bottomDialogMachine = Machine({
-  id: 'bottomDialogMachine',
+const mapMachine = Machine({
+  id: 'mapMachine',
   initial: 'hidden',
   states: {
     hidden: {
       on: {
-        SHOW: 'visible',
+        SHOW: 'searchResult',
+        SEARCH: 'searching',
       },
     },
-    visible: {
+    searching: {
+      on: {
+        SHOW: 'searchResult',
+        HIDE: 'hidden',
+      },
+    },
+    searchResult: {
       on: {
         HIDE: 'hidden',
+        SEARCH: 'searching',
+        SELECT_ADDRESS: 'newIntervention',
+      },
+    },
+    newIntervention: {
+      on: {
+        SAVE: 'hidden',
+        HIDE: 'hidden',
+        SEARCH: 'searching',
       },
     },
   },
@@ -190,8 +207,6 @@ export default {
       token: process.env.MAPBOX_ACCESS_TOKEN,
       initialCenter: [6.141, 46.202],
       searchResult: null,
-      showSearchResultMarker: false,
-      isAddressSelected: false,
       interventionsData: (() =>
         this.$q.sessionStorage.getItem('interventionsData') || {
           type: 'FeatureCollection',
@@ -199,8 +214,8 @@ export default {
         })(),
       rightDrawer: false,
       showPadding: false,
-      bottomDialogService: interpret(bottomDialogMachine),
-      bottomDialogState: bottomDialogMachine.initialState,
+      mapService: interpret(mapMachine, { devTools: true }),
+      mapState: mapMachine.initialState,
     }
   },
   watch: {
@@ -209,9 +224,9 @@ export default {
     },
   },
   created() {
-    this.bottomDialogService
+    this.mapService
       .onTransition(newState => {
-        this.bottomDialogState = newState
+        this.mapState = newState
       })
       .start()
   },
@@ -225,9 +240,8 @@ export default {
       })
     },
     async onGeocoderResult(event) {
-      this.showSearchResultMarker = true
       this.searchResult = event.result
-      this.bottomDialogService.send('SHOW')
+      this.mapService.send('SHOW')
 
       /**
        * Permet de mettre à jour le DOM (insérer le Marker) avant de démarrer le flyTo
@@ -286,7 +300,7 @@ export default {
     onInterventionSaved(adresse) {
       this.interventionsData.features.push(adresse)
       this.$q.sessionStorage.set('interventionsData', this.interventionsData)
-      this.bottomDialogService.send('HIDE')
+      this.mapService.send('HIDE')
     },
     clearStorage(/* event */) {
       this.$q.sessionStorage.remove('interventionsData')
