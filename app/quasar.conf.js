@@ -16,7 +16,7 @@ module.exports = configure(function(/* ctx */) {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://quasar.dev/quasar-cli/cli-documentation/boot-files
-    boot: ['axios'],
+    boot: ['composition-api', 'axios'],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
     css: ['app.css'],
@@ -53,12 +53,7 @@ module.exports = configure(function(/* ctx */) {
       directives: [],
 
       // Quasar plugins
-      plugins: [
-        'Notify',
-        'Dialog',
-        'LocalStorage',
-        'SessionStorage'
-      ],
+      plugins: ['Notify', 'Dialog', 'LocalStorage', 'SessionStorage'],
     },
 
     // https://quasar.dev/quasar-cli/cli-documentation/supporting-ie
