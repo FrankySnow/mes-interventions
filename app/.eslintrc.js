@@ -72,7 +72,13 @@ module.exports = {
      * Require parens in arrow function arguments
      * https://eslint.org/docs/rules/arrow-parens
      */
-    'arrow-parens': ['warn', 'as-needed'],
+    'arrow-parens': ['warn', 'always'],
+
+    /**
+     * Disallow Assignment in return Statement
+     * https://eslint.org/docs/rules/no-return-assign
+     */
+    'no-return-assign': ['warn', 'except-parens'],
 
     /**
      * Require or disallow named `function` expressions
