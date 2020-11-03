@@ -151,6 +151,8 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'
 import promisify from 'map-promisified'
 import { Machine, interpret } from 'xstate'
+import { defineComponent, nextTick, ref, watch } from '@vue/composition-api'
+import { Platform, SessionStorage } from 'quasar'
 
 import SearchResult from '../components/SearchResult.vue'
 import NewIntervention from '../components/NewIntervention.vue'
@@ -189,7 +191,7 @@ const mapMachine = Machine({
   strict: true,
 })
 
-export default {
+export default defineComponent({
   name: 'Carte',
   components: {
     MapboxMap,
@@ -202,51 +204,82 @@ export default {
     MapboxLayer,
     NewIntervention,
   },
-  data() {
-    return {
-      token: process.env.MAPBOX_ACCESS_TOKEN,
-      initialCenter: [6.141, 46.202],
-      searchResult: null,
-      interventionsData: (() =>
-        this.$q.sessionStorage.getItem('interventionsData') || {
-          type: 'FeatureCollection',
-          features: [],
-        })(),
-      rightDrawer: false,
-      showPadding: false,
-      mapService: interpret(mapMachine, { devTools: true }),
-      mapState: mapMachine.initialState,
-    }
-  },
-  watch: {
-    showPadding(state) {
-      this.map.showPadding = state
-    },
-  },
-  created() {
-    this.mapService
-      .onTransition(newState => {
-        this.mapState = newState
-      })
-      .start()
-  },
-  methods: {
-    onMapCreated(mapInstance) {
-      this.map = mapInstance // ⚠️ propriété non réactive
-      this.mapPromisified = promisify(mapInstance) // ⚠️ propriété non réactive
-      this.map.showPadding = this.showPadding
-      this.map.setPadding({
+  setup() {
+    const rightDrawer = ref(false)
+    const showPadding = ref(false)
+    const token = process.env.MAPBOX_ACCESS_TOKEN
+    const initialCenter = [6.141, 46.202]
+    const map = ref(null)
+    const mapPromisified = ref(null)
+    const searchResult = ref(null)
+    const interventionsData = ref(null)
+
+    /**
+     * Map instance
+     */
+    const onMapCreated = (mapInstance) => {
+      map.value = mapInstance
+      mapPromisified.value = promisify(mapInstance)
+      map.value.showPadding = showPadding.value
+      map.value.setPadding({
         top: 60,
       })
-    },
-    async onGeocoderResult(event) {
-      this.searchResult = event.result
-      this.mapService.send('SHOW')
+    }
+
+    /**
+     * Debug panel
+     */
+    watch(
+      () => showPadding.value,
+      (state) => (map.value.showPadding = state),
+    )
+
+    /**
+     * XState
+     */
+    const mapService = ref(interpret(mapMachine, { devTools: true }))
+
+    const mapState = ref(mapMachine.initialState)
+
+    mapService.value
+      .onTransition((newState) => {
+        mapState.value = newState
+      })
+      .start()
+
+    /**
+     * Store
+     */
+    interventionsData.value = SessionStorage.getItem('interventionsData') ?? {
+      type: 'FeatureCollection',
+      features: [],
+    }
+
+    const onInterventionSaved = (adresse) => {
+      interventionsData.value.features.push(adresse)
+      SessionStorage.set('interventionsData', interventionsData.value)
+      mapService.value.send('HIDE')
+    }
+
+    const clearStorage = (/* event */) => {
+      SessionStorage.remove('interventionsData')
+      interventionsData.value = {
+        type: 'FeatureCollection',
+        features: [],
+      }
+    }
+
+    /**
+     * Geocoder
+     */
+    const onGeocoderResult = async (event) => {
+      searchResult.value = event.result
+      mapService.value.send('SHOW')
 
       /**
        * Permet de mettre à jour le DOM (insérer le Marker) avant de démarrer le flyTo
        */
-      await this.$nextTick()
+      await nextTick()
 
       const options = {
         center: event.result.center,
@@ -268,16 +301,20 @@ export default {
        * l'écouteur d'évènement.
        */
       const flyToAndThenRemoveListener = async () => {
-        await this.mapPromisified.flyTo(options)
-        if (!this.map.isMoving()) {
-          this.map.off('resize', flyToAndThenRemoveListener)
+        await mapPromisified.value.flyTo(options)
+        if (!map.value.isMoving()) {
+          map.value.off('resize', flyToAndThenRemoveListener)
         }
       }
 
-      this.map.on('resize', flyToAndThenRemoveListener)
+      map.value.on('resize', flyToAndThenRemoveListener)
       await flyToAndThenRemoveListener()
-    },
-    async onDialogResize(event) {
+    }
+
+    /**
+     * Bottom dialog
+     */
+    const onDialogResize = async (event) => {
       /**
        * Lorsque `onDialogResize` est appelé par `q-dialog@before-hide`,
        * aucun évènement `resize` n'est déclenché et `event === undefined`.
@@ -289,28 +326,33 @@ export default {
        * - 48 px sur desktop
        * - 52 px sur mobile
        */
-      const footerHeight = this.$q.platform.is.desktop ? 48 : 52
+      const footerHeight = Platform.is.desktop ? 48 : 52
 
       const bottom = Math.max(dialogHeight - footerHeight, 0)
 
-      this.map.setPadding({
+      map.value.setPadding({
         bottom,
       })
-    },
-    onInterventionSaved(adresse) {
-      this.interventionsData.features.push(adresse)
-      this.$q.sessionStorage.set('interventionsData', this.interventionsData)
-      this.mapService.send('HIDE')
-    },
-    clearStorage(/* event */) {
-      this.$q.sessionStorage.remove('interventionsData')
-      this.interventionsData = {
-        type: 'FeatureCollection',
-        features: [],
-      }
-    },
+    }
+
+    return {
+      token,
+      initialCenter,
+      rightDrawer,
+      showPadding,
+      map,
+      onMapCreated,
+      searchResult,
+      interventionsData,
+      mapService,
+      mapState,
+      onInterventionSaved,
+      clearStorage,
+      onGeocoderResult,
+      onDialogResize,
+    }
   },
-}
+})
 </script>
 
 <style lang="stylus">
