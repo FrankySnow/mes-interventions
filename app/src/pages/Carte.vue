@@ -9,46 +9,7 @@
       elevated
       content-class="bg-grey-3"
     >
-      <q-list>
-        <q-item-label header>
-          Debugging
-        </q-item-label>
-
-        <q-item v-ripple>
-          <q-item-section>
-            <q-item-label>Show padding</q-item-label>
-          </q-item-section>
-          <q-item-section side>
-            <q-toggle
-              v-model="showPadding"
-              checked-icon="check"
-              unchecked-icon="clear"
-              color="green"
-            />
-          </q-item-section>
-        </q-item>
-
-        <q-item>
-          <q-item-section>
-            <q-item-label>Clear storage</q-item-label>
-          </q-item-section>
-          <q-item-section side>
-            <q-btn v-ripple icon="delete" unelevated>
-              <q-menu>
-                <q-btn
-                  v-ripple
-                  v-close-popup
-                  color="red"
-                  icon="warning"
-                  @click="clearStorage"
-                />
-              </q-menu>
-            </q-btn>
-          </q-item-section>
-        </q-item>
-
-        <q-separator spaced />
-      </q-list>
+      <debug-panel :map-key="mapKey" :data-key="dataKey" />
     </q-drawer>
     <div class="absolute-full">
       <mapbox-map
@@ -151,11 +112,12 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'
 import promisify from 'map-promisified'
 import { Machine, interpret } from 'xstate'
-import { defineComponent, nextTick, ref, watch } from '@vue/composition-api'
+import { defineComponent, nextTick, provide, ref } from '@vue/composition-api'
 import { Platform, SessionStorage } from 'quasar'
 
 import SearchResult from '../components/SearchResult.vue'
 import NewIntervention from '../components/NewIntervention.vue'
+import DebugPanel from '../components/DebugPanel.vue'
 
 const mapMachine = Machine({
   id: 'mapMachine',
@@ -203,6 +165,7 @@ export default defineComponent({
     SearchResult,
     MapboxLayer,
     NewIntervention,
+    DebugPanel,
   },
   setup() {
     const rightDrawer = ref(false)
@@ -213,6 +176,12 @@ export default defineComponent({
     const mapPromisified = ref(null)
     const searchResult = ref(null)
     const interventionsData = ref(null)
+
+    const mapKey = Symbol('mapKey')
+    provide(mapKey, map)
+
+    const dataKey = Symbol('dataKey')
+    provide(dataKey, interventionsData)
 
     /**
      * Map instance
@@ -225,15 +194,6 @@ export default defineComponent({
         top: 60,
       })
     }
-
-    /**
-     * Debug panel
-     */
-    watch(
-      () => showPadding.value,
-      (state) => (map.value.showPadding = state),
-    )
-
     /**
      * XState
      */
@@ -259,14 +219,6 @@ export default defineComponent({
       interventionsData.value.features.push(adresse)
       SessionStorage.set('interventionsData', interventionsData.value)
       mapService.value.send('HIDE')
-    }
-
-    const clearStorage = (/* event */) => {
-      SessionStorage.remove('interventionsData')
-      interventionsData.value = {
-        type: 'FeatureCollection',
-        features: [],
-      }
     }
 
     /**
@@ -336,18 +288,18 @@ export default defineComponent({
     }
 
     return {
+      mapKey,
+      dataKey,
       token,
       initialCenter,
       rightDrawer,
       showPadding,
-      map,
       onMapCreated,
       searchResult,
       interventionsData,
       mapService,
       mapState,
       onInterventionSaved,
-      clearStorage,
       onGeocoderResult,
       onDialogResize,
     }
