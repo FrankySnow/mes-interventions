@@ -30,12 +30,11 @@
           :fly-to="false"
           placeholder="Rechercher..."
           @mb-result="onGeocoderResult"
-          @mb-loading="mapService.send('SEARCH')"
+          @mb-loading="send('SEARCH')"
         />
         <mapbox-marker
           v-if="
-            mapState.matches('searchResult') ||
-              mapState.matches('newIntervention')
+            state.matches('searchResult') || state.matches('newIntervention')
           "
           :lng-lat="searchResult.center"
           color="gold"
@@ -74,22 +73,21 @@
       </mapbox-map>
       <q-dialog
         :value="
-          mapState.matches('searchResult') ||
-            mapState.matches('newIntervention')
+          state.matches('searchResult') || state.matches('newIntervention')
         "
         position="bottom"
-        :seamless="mapState.matches('searchResult')"
-        @hide="mapService.send('HIDE')"
+        :seamless="state.matches('searchResult')"
+        @hide="send('HIDE')"
         @before-hide="onDialogResize"
       >
         <q-resize-observer @resize="onDialogResize" />
         <search-result
-          v-if="mapState.matches('searchResult')"
+          v-if="state.matches('searchResult')"
           :search-result="searchResult"
-          @addressSelected="mapService.send('SELECT_ADDRESS')"
+          @addressSelected="send('SELECT_ADDRESS')"
         />
         <new-intervention
-          v-if="mapState.matches('newIntervention')"
+          v-if="state.matches('newIntervention')"
           :search-result="searchResult"
           @saved="onInterventionSaved"
         />
@@ -111,7 +109,8 @@ import {
 import 'mapbox-gl/dist/mapbox-gl.css'
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'
 import promisify from 'map-promisified'
-import { Machine, interpret } from 'xstate'
+import { Machine } from 'xstate'
+import { useMachine } from '@xstate/vue'
 import { defineComponent, nextTick, provide, ref } from '@vue/composition-api'
 import { Platform, SessionStorage } from 'quasar'
 
@@ -197,15 +196,7 @@ export default defineComponent({
     /**
      * XState
      */
-    const mapService = ref(interpret(mapMachine, { devTools: true }))
-
-    const mapState = ref(mapMachine.initialState)
-
-    mapService.value
-      .onTransition((newState) => {
-        mapState.value = newState
-      })
-      .start()
+    const { state, send } = useMachine(mapMachine, { devTools: true })
 
     /**
      * Store
@@ -218,7 +209,7 @@ export default defineComponent({
     const onInterventionSaved = (adresse) => {
       interventionsData.value.features.push(adresse)
       SessionStorage.set('interventionsData', interventionsData.value)
-      mapService.value.send('HIDE')
+      send('HIDE')
     }
 
     /**
@@ -226,7 +217,7 @@ export default defineComponent({
      */
     const onGeocoderResult = async (event) => {
       searchResult.value = event.result
-      mapService.value.send('SHOW')
+      send('SHOW')
 
       /**
        * Permet de mettre à jour le DOM (insérer le Marker) avant de démarrer le flyTo
@@ -297,8 +288,8 @@ export default defineComponent({
       onMapCreated,
       searchResult,
       interventionsData,
-      mapService,
-      mapState,
+      state,
+      send,
       onInterventionSaved,
       onGeocoderResult,
       onDialogResize,
