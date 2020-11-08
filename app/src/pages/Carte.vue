@@ -9,7 +9,7 @@
       elevated
       content-class="bg-grey-3"
     >
-      <debug-panel :map-key="mapKey" :data-key="dataKey" />
+      <debug-panel :data-key="dataKey" />
     </q-drawer>
     <div class="absolute-full">
       <mapbox-map
@@ -108,7 +108,6 @@ import {
 } from '@studiometa/vue-mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'
-import promisify from 'map-promisified'
 import { Machine } from 'xstate'
 import { useMachine } from '@xstate/vue'
 import { defineComponent, nextTick, provide, ref } from '@vue/composition-api'
@@ -117,6 +116,7 @@ import { Platform, SessionStorage } from 'quasar'
 import SearchResult from '../components/SearchResult.vue'
 import NewIntervention from '../components/NewIntervention.vue'
 import DebugPanel from '../components/DebugPanel.vue'
+import { useMapProvider } from '../composables/useMap'
 
 const mapMachine = Machine({
   id: 'mapMachine',
@@ -171,13 +171,14 @@ export default defineComponent({
     const showPadding = ref(false)
     const token = process.env.MAPBOX_ACCESS_TOKEN
     const initialCenter = [6.141, 46.202]
-    const map = ref(null)
-    const mapPromisified = ref(null)
+    let map
+    let mapPromisified
     const searchResult = ref(null)
     const interventionsData = ref(null)
 
-    const mapKey = Symbol('mapKey')
-    provide(mapKey, map)
+    // useMapProvider provide()s the `map` context
+    // assignMap updates the `map` when it's ready
+    const { assignMap } = useMapProvider()
 
     const dataKey = Symbol('dataKey')
     provide(dataKey, interventionsData)
@@ -186,8 +187,7 @@ export default defineComponent({
      * Map instance
      */
     const onMapCreated = (mapInstance) => {
-      map.value = mapInstance
-      mapPromisified.value = promisify(mapInstance)
+      ;({ map, mapPromisified } = assignMap(mapInstance))
       map.value.showPadding = showPadding.value
       map.value.setPadding({
         top: 60,
@@ -279,7 +279,6 @@ export default defineComponent({
     }
 
     return {
-      mapKey,
       dataKey,
       token,
       initialCenter,

@@ -52,15 +52,16 @@ import {
 } from '@vue/composition-api'
 import { SessionStorage, Notify } from 'quasar'
 
+import { useMapContext } from '../composables/useMap'
+
 export default defineComponent({
   props: {
-    mapKey: null,
     dataKey: null,
   },
   setup(props) {
-    const { dataKey, mapKey } = toRefs(props)
+    const { dataKey } = toRefs(props)
 
-    const map = inject(mapKey.value)
+    const { map } = useMapContext()
     const interventionsData = inject(dataKey.value)
 
     const slideItem = ref(null)
