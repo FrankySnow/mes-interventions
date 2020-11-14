@@ -33,10 +33,8 @@
           @mb-loading="send('SEARCH')"
         />
         <mapbox-marker
-          v-if="
-            state.matches('searchResult') || state.matches('newIntervention')
-          "
-          :lng-lat="searchResult.center"
+          v-if="state.matches('displaying')"
+          :lng-lat="state.context.searchResult.center"
           color="gold"
         />
         <mapbox-navigation-control
@@ -72,23 +70,22 @@
         />
       </mapbox-map>
       <q-dialog
-        :value="
-          state.matches('searchResult') || state.matches('newIntervention')
-        "
+        :value="state.matches('displaying')"
         position="bottom"
-        :seamless="state.matches('searchResult')"
-        @hide="send('HIDE')"
+        :seamless="state.matches('displaying.result')"
+        @hide="send('CANCEL')"
         @before-hide="onDialogResize"
       >
         <q-resize-observer @resize="onDialogResize" />
         <search-result
-          v-if="state.matches('searchResult')"
-          :search-result="searchResult"
-          @addressSelected="send('SELECT_ADDRESS')"
+          v-if="state.matches('displaying.result')"
+          :search-result="state.context.searchResult"
+          @addressSelected="send('RESULT.COMMIT')"
+          @hide="send('CANCEL')"
         />
         <new-intervention
-          v-if="state.matches('newIntervention')"
-          :search-result="searchResult"
+          v-if="state.matches('displaying.intervention')"
+          :search-result="state.context.searchResult"
           @saved="onInterventionSaved"
         />
       </q-dialog>
@@ -108,7 +105,6 @@ import {
 } from '@studiometa/vue-mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'
-import { Machine } from 'xstate'
 import { useMachine } from '@xstate/vue'
 import { defineComponent, nextTick, provide, ref } from '@vue/composition-api'
 import { Platform, SessionStorage } from 'quasar'
@@ -117,40 +113,7 @@ import SearchResult from '../components/SearchResult.vue'
 import NewIntervention from '../components/NewIntervention.vue'
 import DebugPanel from '../components/DebugPanel.vue'
 import { useMapProvider } from '../composables/useMap'
-
-const mapMachine = Machine({
-  id: 'mapMachine',
-  initial: 'hidden',
-  states: {
-    hidden: {
-      on: {
-        SHOW: 'searchResult',
-        SEARCH: 'searching',
-      },
-    },
-    searching: {
-      on: {
-        SHOW: 'searchResult',
-        HIDE: 'hidden',
-      },
-    },
-    searchResult: {
-      on: {
-        HIDE: 'hidden',
-        SEARCH: 'searching',
-        SELECT_ADDRESS: 'newIntervention',
-      },
-    },
-    newIntervention: {
-      on: {
-        SAVE: 'hidden',
-        HIDE: 'hidden',
-        SEARCH: 'searching',
-      },
-    },
-  },
-  strict: true,
-})
+import appMachine from '../machines/app'
 
 export default defineComponent({
   name: 'Carte',
@@ -173,7 +136,6 @@ export default defineComponent({
     const initialCenter = [6.141, 46.202]
     let map
     let mapPromisified
-    const searchResult = ref(null)
     const interventionsData = ref(null)
 
     // useMapProvider provide()s the `map` context
@@ -196,7 +158,9 @@ export default defineComponent({
     /**
      * XState
      */
-    const { state, send } = useMachine(mapMachine, { devTools: true })
+    const { state, send /* service */ } = useMachine(appMachine, {
+      devTools: true,
+    })
 
     /**
      * Store
@@ -209,15 +173,14 @@ export default defineComponent({
     const onInterventionSaved = (adresse) => {
       interventionsData.value.features.push(adresse)
       SessionStorage.set('interventionsData', interventionsData.value)
-      send('HIDE')
+      send('CANCEL')
     }
 
     /**
      * Geocoder
      */
     const onGeocoderResult = async (event) => {
-      searchResult.value = event.result
-      send('SHOW')
+      send('RESULT.SELECT', event)
 
       /**
        * Permet de mettre à jour le DOM (insérer le Marker) avant de démarrer le flyTo
@@ -285,7 +248,6 @@ export default defineComponent({
       rightDrawer,
       showPadding,
       onMapCreated,
-      searchResult,
       interventionsData,
       state,
       send,
