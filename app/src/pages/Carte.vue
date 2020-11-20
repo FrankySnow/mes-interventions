@@ -9,7 +9,7 @@
       elevated
       content-class="bg-grey-3"
     >
-      <debug-panel :data-key="dataKey" />
+      <debug-panel @clearStorage="send('CLEAR_STORAGE')" />
     </q-drawer>
     <div class="absolute-full">
       <mapbox-map
@@ -52,7 +52,7 @@
           id="interventionsData"
           :options="{
             type: 'geojson',
-            data: interventionsData,
+            data: state.context.interventionsData,
           }"
         />
         <mapbox-layer
@@ -80,13 +80,13 @@
         <search-result
           v-if="state.matches('displaying.result')"
           :search-result="state.context.searchResult"
-          @addressSelected="send('RESULT.COMMIT')"
+          @addressSelected="send('COMMIT_RESULT')"
           @hide="send('CANCEL')"
         />
         <new-intervention
           v-if="state.matches('displaying.intervention')"
           :search-result="state.context.searchResult"
-          @saved="onInterventionSaved"
+          @saved="(adresse) => send('SAVE', { adresse })"
         />
       </q-dialog>
     </div>
@@ -106,8 +106,8 @@ import {
 import 'mapbox-gl/dist/mapbox-gl.css'
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'
 import { useMachine } from '@xstate/vue'
-import { defineComponent, nextTick, provide, ref } from '@vue/composition-api'
-import { Platform, SessionStorage } from 'quasar'
+import { defineComponent, nextTick, ref } from '@vue/composition-api'
+import { Platform } from 'quasar'
 
 import SearchResult from '../components/SearchResult.vue'
 import NewIntervention from '../components/NewIntervention.vue'
@@ -136,14 +136,10 @@ export default defineComponent({
     const initialCenter = [6.141, 46.202]
     let map
     let mapPromisified
-    const interventionsData = ref(null)
 
     // useMapProvider provide()s the `map` context
     // assignMap updates the `map` when it's ready
     const { assignMap } = useMapProvider()
-
-    const dataKey = Symbol('dataKey')
-    provide(dataKey, interventionsData)
 
     /**
      * Map instance
@@ -163,24 +159,10 @@ export default defineComponent({
     })
 
     /**
-     * Store
-     */
-    interventionsData.value = SessionStorage.getItem('interventionsData') ?? {
-      type: 'FeatureCollection',
-      features: [],
-    }
-
-    const onInterventionSaved = (adresse) => {
-      interventionsData.value.features.push(adresse)
-      SessionStorage.set('interventionsData', interventionsData.value)
-      send('CANCEL')
-    }
-
-    /**
      * Geocoder
      */
     const onGeocoderResult = async (event) => {
-      send('RESULT.SELECT', event)
+      send('SELECT_RESULT', event)
 
       /**
        * Permet de mettre à jour le DOM (insérer le Marker) avant de démarrer le flyTo
@@ -242,16 +224,13 @@ export default defineComponent({
     }
 
     return {
-      dataKey,
       token,
       initialCenter,
       rightDrawer,
       showPadding,
       onMapCreated,
-      interventionsData,
       state,
       send,
-      onInterventionSaved,
       onGeocoderResult,
       onDialogResize,
     }

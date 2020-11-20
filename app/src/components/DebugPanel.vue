@@ -43,26 +43,14 @@
 </template>
 
 <script>
-import {
-  defineComponent,
-  inject,
-  ref,
-  toRefs,
-  watch,
-} from '@vue/composition-api'
-import { SessionStorage, Notify } from 'quasar'
+import { defineComponent, ref, watch } from '@vue/composition-api'
+import { Notify } from 'quasar'
 
 import { useMapContext } from '../composables/useMap'
 
 export default defineComponent({
-  props: {
-    dataKey: null,
-  },
-  setup(props) {
-    const { dataKey } = toRefs(props)
-
+  setup(props, { emit }) {
     const { map } = useMapContext()
-    const interventionsData = inject(dataKey.value)
 
     const slideItem = ref(null)
     const showPadding = ref(false)
@@ -72,11 +60,7 @@ export default defineComponent({
     })
 
     const clearStorage = () => {
-      SessionStorage.remove('interventionsData')
-      interventionsData.value = {
-        type: 'FeatureCollection',
-        features: [],
-      }
+      emit('clearStorage')
       Notify.create('🗑️ storage cleared')
       slideItem.value.reset()
     }

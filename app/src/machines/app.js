@@ -1,3 +1,4 @@
+import { SessionStorage } from 'quasar'
 import { Machine, assign } from 'xstate'
 
 export default Machine(
@@ -6,10 +7,17 @@ export default Machine(
     id: 'appMachine',
     initial: 'loading',
     context: {
-      searchResult: {},
+      searchResult: {
+        center: [],
+      },
+      interventionsData: {
+        type: 'FeatureCollection',
+        features: [],
+      },
     },
     states: {
       loading: {
+        entry: ['rehydrateData'],
         always: 'initialized',
       },
       initialized: {
@@ -18,34 +26,84 @@ export default Machine(
         },
       },
       searching: {
+        entry: ['clearSearchResult'],
         on: {
-          'RESULT.SELECT': {
-            actions: 'assignSearchResult',
+          SELECT_RESULT: {
+            actions: ['assignSearchResult'],
             target: 'displaying.result',
+            cond: 'isResultValid',
           },
         },
       },
       displaying: {
+        on: {
+          CANCEL: '#appMachine.initialized',
+        },
         states: {
           result: {
             on: {
-              'RESULT.COMMIT': 'intervention',
+              COMMIT_RESULT: 'intervention',
+              SEARCH: '#appMachine.searching',
             },
           },
           intervention: {
             on: {
-              CANCEL: '#appMachine.initialized',
+              SAVE: {
+                actions: [
+                  'saveIntervention', 
+                  'persistData'
+                ],
+                target: '#appMachine.initialized',
+              },
             },
           },
         },
+      },
+    },
+    on: {
+      CLEAR_STORAGE: {
+        actions: [
+          'clearData',
+          'persistData'
+        ],
       },
     },
   },
   {
     actions: {
       assignSearchResult: assign({
-        searchResult: (ctx, ev) => ev.result,
+        searchResult: (ctx, evt) => evt.result,
       }),
+      clearSearchResult: assign({
+        searchResult: { center: [] },
+      }),
+      saveIntervention: assign({
+        interventionsData: (ctx, evt) => ({
+          type: 'FeatureCollection',
+          features: [
+            ...ctx.interventionsData.features, 
+            evt.adresse
+          ],
+        }),
+      }),
+      persistData: (ctx) => {
+        SessionStorage.set('interventionsData', ctx.interventionsData)
+      },
+      rehydrateData: assign({
+        interventionsData: SessionStorage.getItem('interventionsData') ?? {
+          type: 'FeatureCollection',
+          features: [],
+        },
+      }),
+      clearData: assign({
+        interventionsData: {
+          type: 'FeatureCollection',
+          features: [],
+        },
+      }),
+    },
+    guards: {
+      isResultValid: (ctx, evt) => evt.result !== undefined,
     },
   },
 )
