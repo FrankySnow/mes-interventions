@@ -3,7 +3,6 @@
     <q-item-label header>
       Debugging
     </q-item-label>
-
     <q-item v-ripple>
       <q-item-section>
         <q-item-label>Show padding</q-item-label>
@@ -17,8 +16,11 @@
         />
       </q-item-section>
     </q-item>
-
-    <q-slide-item ref="slideItem" class="bg-grey-3" right-color="red">
+    <q-slide-item
+      ref="slideItem"
+      class="bg-grey-3"
+      right-color="red"
+    >
       <template v-slot:right>
         <q-btn
           v-ripple
@@ -26,7 +28,12 @@
           icon="undo"
           @click="() => slideItem.reset()"
         />
-        <q-btn v-ripple unelevated icon="warning" @click="clearStorage" />
+        <q-btn
+          v-ripple
+          unelevated
+          icon="warning"
+          @click="clearStorage"
+        />
       </template>
       <q-item>
         <q-item-section>
@@ -37,7 +44,6 @@
         </q-item-section>
       </q-item>
     </q-slide-item>
-
     <q-separator spaced />
   </q-list>
 </template>

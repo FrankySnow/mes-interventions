@@ -3,9 +3,13 @@
     <q-card-section class="row items-center q-pb-none">
       <div class="text-h6">Nouvelle intervention</div>
       <q-space />
-      <q-btn v-close-popup icon="close" flat round />
+      <q-btn
+        v-close-popup
+        icon="close"
+        flat
+        round
+      />
     </q-card-section>
-
     <q-card-section class="q-gutter-md items-center">
       <q-input
         v-model="newInterventionData.date"
@@ -17,7 +21,10 @@
           <q-icon name="event" />
         </template>
         <template v-slot:append>
-          <q-icon name="edit" class="cursor-pointer">
+          <q-icon
+            name="edit"
+            class="cursor-pointer"
+          >
             <q-popup-proxy
               ref="qDateProxy"
               transition-show="scale"
@@ -41,17 +48,29 @@
           <q-icon name="place" />
         </template>
       </q-input>
-      <q-input v-model="newInterventionData.critère" label="Critère" outlined>
+      <q-input
+        v-model="newInterventionData.critère"
+        label="Critère"
+        outlined
+      >
         <template v-slot:before>
           <q-icon name="fireplace" />
         </template>
       </q-input>
-      <q-input v-model="newInterventionData.véhicule" label="Véhicule" outlined>
+      <q-input
+        v-model="newInterventionData.véhicule"
+        label="Véhicule"
+        outlined
+      >
         <template v-slot:before>
           <q-icon name="local_shipping" />
         </template>
       </q-input>
-      <q-input v-model="newInterventionData.rôle" label="Rôle" outlined>
+      <q-input
+        v-model="newInterventionData.rôle"
+        label="Rôle"
+        outlined
+      >
         <template v-slot:before>
           <q-icon name="person" />
         </template>

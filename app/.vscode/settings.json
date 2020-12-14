@@ -1,7 +1,11 @@
 {
-  "vetur.validation.template": false,
-  "vetur.format.enable": false,
-  "eslint.validate": ["javascript", "javascriptreact", "typescript", "vue"],
-  
-  "vetur.experimental.templateInterpolationService": true
+  "vetur.format.defaultFormatter.html": "js-beautify-html",
+  "vetur.format.defaultFormatterOptions": {
+    "js-beautify-html": {
+      "wrap_line_length": "80",
+      "wrap_attributes": "force-expand-multiline",
+      "preserve_newlines": true,
+      "max_preserve_newlines": "0"
+    }
+  }
 }

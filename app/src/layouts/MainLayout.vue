@@ -11,8 +11,10 @@
         </keep-alive>
       </transition>
     </q-page-container>
-
-    <q-footer elevated class="bg-red-8 text-white">
+    <q-footer
+      elevated
+      class="bg-red-8 text-white"
+    >
       <q-tabs
         v-model="tab"
         no-caps
