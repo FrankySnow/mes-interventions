@@ -86,7 +86,8 @@
         <new-intervention
           v-if="state.matches('displaying.intervention')"
           :search-result="state.context.searchResult"
-          @saved="(adresse) => send('SAVE', { adresse })"
+          @save="(intervention) => send('SAVE', { intervention })"
+          @cancel="send('CANCEL')"
         />
       </q-dialog>
     </div>

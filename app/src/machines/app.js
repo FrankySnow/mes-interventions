@@ -50,11 +50,12 @@ export default Machine(
             on: {
               SAVE: {
                 actions: [
-                  'saveIntervention', 
+                  'saveIntervention',
                   'persistData'
                 ],
                 target: '#appMachine.initialized',
               },
+              CANCEL: 'result',
             },
           },
         },
@@ -81,8 +82,8 @@ export default Machine(
         interventionsData: (ctx, evt) => ({
           type: 'FeatureCollection',
           features: [
-            ...ctx.interventionsData.features, 
-            evt.adresse
+            ...ctx.interventionsData.features,
+            evt.adresse // FIXME: Broken
           ],
         }),
       }),
