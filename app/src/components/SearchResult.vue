@@ -51,7 +51,7 @@
               label="Ajouter intervention"
               size=""
               unelevated
-              @click="$emit('addressSelected')"
+              @click="emit('addressSelected')"
             />
           </q-item-section>
         </q-item>
@@ -61,14 +61,19 @@
 </template>
 
 <script>
-export default {
+import { defineComponent } from "@vue/composition-api"
+
+export default defineComponent({
   props: {
     searchResult: {
       type: Object,
       default: () => ({}),
     }
   },
-}
+  setup(props, { emit }) {
+    return {
+      emit,
+    }
+  }
+})
 </script>
-
-<style></style>

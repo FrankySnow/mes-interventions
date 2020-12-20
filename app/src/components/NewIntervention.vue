@@ -10,7 +10,7 @@
         round
         dense
         text-color="grey-7"
-        @click="$emit('cancel')"
+        @click="emit('cancel')"
       />
       <q-space />
       <q-btn
@@ -37,7 +37,7 @@
           </q-item-section>
           <q-item-section>
             <q-item-label>
-              {{ newInterventionData.évènement.join(' - ') }}
+              {{ newIntervention.évènement.join(' - ') }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -58,18 +58,18 @@
             </q-item-section>
             <q-item-section>
               <q-item-label>
-                {{ newInterventionData.date.dateTime }}
+                {{ newIntervention.date.dateTime }}
               </q-item-label>
             </q-item-section>
             <q-item-section side>
               <q-badge
-                :color="newInterventionData.date.garde.caserne.color"
-                :label="newInterventionData.date.garde.caserne.name"
+                :color="newIntervention.date.garde.caserne.color"
+                :label="newIntervention.date.garde.caserne.name"
               />
             </q-item-section>
           </template>
           <q-input
-            v-model="newInterventionData.date.dateTime"
+            v-model="newIntervention.date.dateTime"
             label="Date"
             outlined
             mask="date"
@@ -88,7 +88,7 @@
                   transition-hide="scale"
                 >
                   <q-date
-                    v-model="newInterventionData.date.dateTime"
+                    v-model="newIntervention.date.dateTime"
                     color="red"
                     @input="onDateInput"
                   />
@@ -102,17 +102,17 @@
           v-ripple
           class="q-pa-none"
           clickable
-          @click="$emit('cancel')"
+          @click="emit('cancel')"
         >
           <q-item-section avatar>
             <q-icon name="place" />
           </q-item-section>
           <q-item-section>
             <q-item-label>
-              {{ newInterventionData.adresse.label }}
+              {{ newIntervention.adresse.label }}
             </q-item-label>
             <q-item-label caption>
-              {{ newInterventionData.adresse.municipality }}
+              {{ newIntervention.adresse.municipality }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -133,22 +133,22 @@
             </q-item-section>
             <q-item-section>
               <q-item-label>
-                {{ newInterventionData.véhicule.type }}
+                {{ newIntervention.véhicule.type }}
                 <q-badge
                   color="black"
-                  :label="newInterventionData.véhicule.numéro"
+                  :label="newIntervention.véhicule.numéro"
                 />
               </q-item-label>
             </q-item-section>
             <q-item-section side>
               <q-badge
                 color="red"
-                :label="newInterventionData.rôle"
+                :label="newIntervention.rôle"
               />
             </q-item-section>
           </template>
           <q-input
-            v-model="newInterventionData.véhicule.type"
+            v-model="newIntervention.véhicule.type"
             label="Véhicule"
             outlined
           >
@@ -157,7 +157,7 @@
             </template>
           </q-input>
           <q-input
-            v-model="newInterventionData.rôle"
+            v-model="newIntervention.rôle"
             label="Rôle"
             outlined
           >
@@ -176,7 +176,7 @@
           </q-item-section>
           <q-item-section>
             <q-input
-              v-model="newInterventionData.remarques"
+              v-model="newIntervention.remarques"
               autogrow
               label="Remarques"
               borderless
@@ -190,7 +190,7 @@
           </q-item-section>
           <q-item-section>
             <q-select
-              v-model="newInterventionData.tags"
+              v-model="newIntervention.tags"
               label="Tags"
               borderless
               use-input
@@ -218,9 +218,10 @@
 </template>
 
 <script>
-import { date } from 'quasar'
+import { defineComponent, reactive, ref } from '@vue/composition-api'
+import { date, Notify } from 'quasar'
 
-export default {
+export default defineComponent({
   name: 'NewIntervention',
   props: {
     searchResult: {
@@ -228,64 +229,71 @@ export default {
       default: () => {},
     },
   },
-  data() {
-    return {
-      loading: false,
-      newInterventionData: {
-        type: "Feature",
-        geometry: this.$props.searchResult.geometry,
-        date: {
-          dateTime: date.formatDate(Date.now(), 'YYYY/MM/DD'),
-          garde: {
-            id: '',
-            caserne: {
-              name: 'Caserne 1',
-              color: 'red',
-            },
-            start: date.formatDate(Date.now(), 'YYYY/MM/DD'),
-            end: date.formatDate(Date.now(), 'YYYY/MM/DD'),
-          }
-        },
-        évènement: [
-          'Incendie',
-          'Bâtiment',
-          'Appartement'
-        ],
-        adresse: {
-          street: null,
-          number: null,
-          label: this.$props.searchResult.place_name.split(',')[0],
-          municipality: this.$props.searchResult.context[1].text,
-          locality: null,
-        },
-        véhicule: {
-          type: 'Auto pompe',
-          numéro: 14,
-        },
-        rôle: 2,
-        remarques: '',
-        tags: [
-          'ARI',
-          "Feu à l'attaque",
-        ]
-      },
-    }
-  },
-  methods: {
-    simulateProgress() {
-      this.loading = true
-      setTimeout(() => {
-        this.loading = false
+  setup({ searchResult }, { emit }) {
+    const loading = ref(false)
+    const qDateProxy = ref()
 
-        this.$q.notify("Intervention sauvegardée 👌")
-        this.$emit('save', this.newInterventionData)
+    const newIntervention = reactive({
+      type: "Feature",
+      geometry: searchResult.geometry,
+      date: {
+        dateTime: date.formatDate(Date.now(), 'YYYY/MM/DD'),
+        garde: {
+          id: '',
+          caserne: {
+            name: 'Caserne 1',
+            color: 'red',
+          },
+          start: date.formatDate(Date.now(), 'YYYY/MM/DD'),
+          end: date.formatDate(Date.now(), 'YYYY/MM/DD'),
+        }
+      },
+      évènement: [
+        'Incendie',
+        'Bâtiment',
+        'Appartement'
+      ],
+      adresse: {
+        street: null,
+        number: null,
+        label: searchResult.place_name.split(',')[0],
+        municipality: searchResult.context[1].text,
+        locality: null,
+      },
+      véhicule: {
+        type: 'Auto pompe',
+        numéro: 14,
+      },
+      rôle: 2,
+      remarques: '',
+      tags: [
+        'ARI',
+        "Feu à l'attaque",
+      ]
+    })
+
+    const simulateProgress = () => {
+      loading.value = true
+      setTimeout(() => {
+        loading.value = false
+
+        Notify.create("Intervention sauvegardée 👌")
+        emit('save', newIntervention)
       }, 500)
-    },
-    onDateInput(/* event */) {
-      this.$refs.qDateProxy.hide()
-    },
-  },
-}
+    }
+
+    const onDateInput = () => qDateProxy.value.hide()
+
+    return {
+      loading,
+      newIntervention,
+      simulateProgress,
+      onDateInput,
+      qDateProxy,
+      emit,
+    }
+  }
+})
 </script>
 
 <style></style>
