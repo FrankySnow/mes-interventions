@@ -232,6 +232,8 @@ export default {
     return {
       loading: false,
       newInterventionData: {
+        type: "Feature",
+        geometry: this.$props.searchResult.geometry,
         date: {
           dateTime: date.formatDate(Date.now(), 'YYYY/MM/DD'),
           garde: {
@@ -255,8 +257,6 @@ export default {
           label: this.$props.searchResult.place_name.split(',')[0],
           municipality: this.$props.searchResult.context[1].text,
           locality: null,
-          lng: '',
-          lat: '',
         },
         véhicule: {
           type: 'Auto pompe',

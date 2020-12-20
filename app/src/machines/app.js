@@ -83,7 +83,7 @@ export default Machine(
           type: 'FeatureCollection',
           features: [
             ...ctx.interventionsData.features,
-            evt.adresse // FIXME: Broken
+            evt.intervention,
           ],
         }),
       }),
