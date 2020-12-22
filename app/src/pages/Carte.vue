@@ -146,7 +146,7 @@ export default defineComponent({
      * Map instance
      */
     const onMapCreated = (mapInstance) => {
-      ;({ map, mapPromisified } = assignMap(mapInstance))
+      ({ map, mapPromisified } = assignMap(mapInstance))
       map.value.showPadding = showPadding.value
       map.value.setPadding({
         top: 60,
@@ -180,12 +180,12 @@ export default defineComponent({
        * ce qui émet un resize via le ResizeObserver (2 pour être précis).
        * Le flyTo qui est déclenché calcule la position de la caméra sur la base du
        * viewport réduit par le clavier virtuel avant le resize, et ne corrige pas cette position.
-       * La caméra arrive donc à destination avec un décalage correspondant à ~ la moitié de la hauteur
-       * du clavier virtuel.
+       * La caméra arrive donc à destination avec un décalage correspondant à ~ la moitié de la
+       * hauteur du clavier virtuel.
        *
        * Ceci est un refactoring de la solution du commit précédent faisant appel à map-promisified,
-       * ce qui permet d'utiliser une Promise qui se résout à la fin de l'animation qu'elle déclenche
-       * (ce qui arrive notamment à chaque resize).
+       * ce qui permet d'utiliser une Promise qui se résout à la fin de l'animation qu'elle
+       * déclenche (ce qui arrive notamment à chaque resize).
        * Il faut donc vérifier que la map ne soit plus en mouvement pour pouvoir détacher
        * l'écouteur d'évènement.
        */

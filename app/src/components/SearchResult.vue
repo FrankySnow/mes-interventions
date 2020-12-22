@@ -36,7 +36,9 @@
         <q-item-label
           class=""
           header
-        >À CETTE ADRESSE</q-item-label>
+        >
+          À CETTE ADRESSE
+        </q-item-label>
         <q-item>
           <q-item-section avatar>
             <q-icon
@@ -61,19 +63,19 @@
 </template>
 
 <script>
-import { defineComponent } from "@vue/composition-api"
+import { defineComponent } from '@vue/composition-api'
 
 export default defineComponent({
   props: {
     searchResult: {
       type: Object,
       default: () => ({}),
-    }
+    },
   },
   setup(props, { emit }) {
     return {
       emit,
     }
-  }
+  },
 })
 </script>

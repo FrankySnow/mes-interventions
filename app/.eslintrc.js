@@ -1,7 +1,6 @@
 module.exports = {
   // https://eslint.org/docs/user-guide/configuring#configuration-cascading-and-hierarchy
   // This option interrupts the configuration hierarchy at this file
-  // Remove this if you have an higher level ESLint config file (it usually happens into a monorepos)
   root: true,
 
   parserOptions: {
@@ -30,9 +29,9 @@ module.exports = {
 
     // https://github.com/prettier/eslint-config-prettier#installation
     // usage with Prettier, provided by 'eslint-config-prettier'.
-    'prettier',
+    // 'prettier',
 
-    'prettier/vue',
+    // 'prettier/vue',
   ],
 
   plugins: [
@@ -79,6 +78,12 @@ module.exports = {
      * https://eslint.org/docs/rules/no-return-assign
      */
     'no-return-assign': ['warn', 'except-parens'],
+
+    /**
+     * Disallow Unused Variables
+     * https://eslint.org/docs/rules/no-unused-vars
+     */
+    'no-unused-vars': ['warn'],
 
     /**
      * Require or disallow named `function` expressions

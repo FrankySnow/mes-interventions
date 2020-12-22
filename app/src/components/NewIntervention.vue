@@ -234,7 +234,7 @@ export default defineComponent({
     const qDateProxy = ref()
 
     const newIntervention = reactive({
-      type: "Feature",
+      type: 'Feature',
       geometry: searchResult.geometry,
       date: {
         dateTime: date.formatDate(Date.now(), 'YYYY/MM/DD'),
@@ -246,12 +246,12 @@ export default defineComponent({
           },
           start: date.formatDate(Date.now(), 'YYYY/MM/DD'),
           end: date.formatDate(Date.now(), 'YYYY/MM/DD'),
-        }
+      },
       },
       évènement: [
         'Incendie',
         'Bâtiment',
-        'Appartement'
+        'Appartement',
       ],
       adresse: {
         street: null,
@@ -269,7 +269,7 @@ export default defineComponent({
       tags: [
         'ARI',
         "Feu à l'attaque",
-      ]
+      ],
     })
 
     const simulateProgress = () => {
@@ -277,8 +277,7 @@ export default defineComponent({
       setTimeout(() => {
         loading.value = false
 
-        Notify.create("Intervention sauvegardée 👌")
-        emit('save', newIntervention)
+        Notify.create('Intervention sauvegardée 👌')
       }, 500)
     }
 
@@ -292,7 +291,7 @@ export default defineComponent({
       qDateProxy,
       emit,
     }
-  }
+  },
 })
 </script>
 
