@@ -14,24 +14,30 @@ const interventionsMachine = Machine({
       always: 'ready',
     },
     ready: {},
+    saving: {
+      after: {
+        1000: {
+          actions: [
+            assign({
+              newIntervention: {},
+              allInterventions: (ctx) => ctx.allInterventions.concat(ctx.newIntervention),
+            }),
+            'persist',
+          ],
+          target: 'ready',
+        },
+      },
+    },
   },
   on: {
     'NEWINTERVENTION.CHANGE': {
       actions: [
         assign({
-          newIntervention: (ctx, evt) => evt.newIntervention,
+          newIntervention: (_ctx, evt) => evt.newIntervention,
         }),
       ],
     },
-    'NEWINTERVENTION.COMMIT': {
-      actions: [
-        assign({
-          newIntervention: {},
-          allInterventions: (ctx, evt) => ctx.allInterventions.concat(evt.newIntervention),
-        }),
-        'persist',
-      ],
-    },
+    'NEWINTERVENTION.COMMIT': 'saving',
   },
 })
 

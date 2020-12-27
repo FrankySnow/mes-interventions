@@ -205,13 +205,13 @@
     </q-card-section>
     <q-card-section class="row flex-center">
       <q-btn
-        :loading="loading"
+        :loading="state.matches('saving')"
         color="red-1"
         text-color="red-7"
         icon="save"
         unelevated
         label="sauvegarder"
-        @click="simulateProgress"
+        @click="save"
       />
     </q-card-section>
   </q-card>
@@ -223,6 +223,7 @@ import {
   inject,
   reactive,
   ref,
+  watch,
   watchEffect,
 } from '@vue/composition-api'
 import { date, Notify } from 'quasar'
@@ -269,7 +270,7 @@ function createNewIntervention({ searchResult }) {
 }
 
 function useNewIntervention({ searchResult }) {
-  const { send } = inject('interventionsService')
+  const { state, send } = inject('interventionsService')
 
   const newIntervention = createNewIntervention({ searchResult })
 
@@ -277,7 +278,14 @@ function useNewIntervention({ searchResult }) {
     () => send('NEWINTERVENTION.CHANGE', { newIntervention }),
   )
 
-  const saveNewIntervention = () => send('NEWINTERVENTION.COMMIT', { newIntervention })
+  const saveNewIntervention = async () => new Promise((resolve) => {
+    send('NEWINTERVENTION.COMMIT', { newIntervention })
+    setTimeout(() => {
+      watch(state, () => {
+        if (state.value.matches('ready')) resolve()
+      })
+    }, 0)
+  })
 
   return {
     newIntervention,
@@ -294,29 +302,25 @@ export default defineComponent({
     },
   },
   setup({ searchResult }, { emit }) {
-    const loading = ref(false)
     const qDateProxy = ref()
     const { newIntervention, saveNewIntervention } = useNewIntervention({ searchResult })
+    const { state } = inject('interventionsService')
 
-    const simulateProgress = () => {
-      loading.value = true
-      setTimeout(() => {
-        loading.value = false
-        saveNewIntervention()
-        emit('save')
-        Notify.create('Intervention sauvegardée 👌')
-      }, 500)
+    const save = async () => {
+      await saveNewIntervention()
+      emit('save')
+      Notify.create('Intervention sauvegardée 👌')
     }
 
     const onDateInput = () => qDateProxy.value.hide()
 
     return {
-      loading,
       newIntervention,
-      simulateProgress,
+      save,
       onDateInput,
       qDateProxy,
       emit,
+      state,
     }
   },
 })
