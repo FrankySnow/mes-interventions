@@ -218,8 +218,72 @@
 </template>
 
 <script>
-import { defineComponent, reactive, ref } from '@vue/composition-api'
+import {
+  defineComponent,
+  inject,
+  reactive,
+  ref,
+  watchEffect,
+} from '@vue/composition-api'
 import { date, Notify } from 'quasar'
+
+function createNewIntervention({ searchResult }) {
+  return reactive({
+    type: 'Feature',
+    geometry: searchResult.geometry,
+    date: {
+      dateTime: date.formatDate(Date.now(), 'YYYY/MM/DD'),
+      garde: {
+        id: '',
+        caserne: {
+          name: 'Caserne 1',
+          color: 'red',
+        },
+        start: date.formatDate(Date.now(), 'YYYY/MM/DD'),
+        end: date.formatDate(Date.now(), 'YYYY/MM/DD'),
+      },
+    },
+    évènement: [
+      'Incendie',
+      'Bâtiment',
+      'Appartement',
+    ],
+    adresse: {
+      street: null,
+      number: null,
+      label: searchResult.place_name.split(',')[0],
+      municipality: searchResult.context[1].text,
+      locality: null,
+    },
+    véhicule: {
+      type: 'Auto pompe',
+      numéro: 14,
+    },
+    rôle: 2,
+    remarques: '',
+    tags: [
+      'ARI',
+      "Feu à l'attaque",
+    ],
+  })
+}
+
+function useNewIntervention({ searchResult }) {
+  const { send } = inject('interventionsService')
+
+  const newIntervention = createNewIntervention({ searchResult })
+
+  watchEffect(
+    () => send('NEWINTERVENTION.CHANGE', { newIntervention }),
+  )
+
+  const saveNewIntervention = () => send('NEWINTERVENTION.COMMIT', { newIntervention })
+
+  return {
+    newIntervention,
+    saveNewIntervention,
+  }
+}
 
 export default defineComponent({
   name: 'NewIntervention',
@@ -232,51 +296,14 @@ export default defineComponent({
   setup({ searchResult }, { emit }) {
     const loading = ref(false)
     const qDateProxy = ref()
-
-    const newIntervention = reactive({
-      type: 'Feature',
-      geometry: searchResult.geometry,
-      date: {
-        dateTime: date.formatDate(Date.now(), 'YYYY/MM/DD'),
-        garde: {
-          id: '',
-          caserne: {
-            name: 'Caserne 1',
-            color: 'red',
-          },
-          start: date.formatDate(Date.now(), 'YYYY/MM/DD'),
-          end: date.formatDate(Date.now(), 'YYYY/MM/DD'),
-      },
-      },
-      évènement: [
-        'Incendie',
-        'Bâtiment',
-        'Appartement',
-      ],
-      adresse: {
-        street: null,
-        number: null,
-        label: searchResult.place_name.split(',')[0],
-        municipality: searchResult.context[1].text,
-        locality: null,
-      },
-      véhicule: {
-        type: 'Auto pompe',
-        numéro: 14,
-      },
-      rôle: 2,
-      remarques: '',
-      tags: [
-        'ARI',
-        "Feu à l'attaque",
-      ],
-    })
+    const { newIntervention, saveNewIntervention } = useNewIntervention({ searchResult })
 
     const simulateProgress = () => {
       loading.value = true
       setTimeout(() => {
         loading.value = false
-
+        saveNewIntervention()
+        emit('save')
         Notify.create('Intervention sauvegardée 👌')
       }, 500)
     }

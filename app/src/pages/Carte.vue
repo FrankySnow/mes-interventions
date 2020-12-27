@@ -52,7 +52,7 @@
           id="interventionsData"
           :options="{
             type: 'geojson',
-            data: state.context.interventionsData,
+            data: geojson,
           }"
         />
         <mapbox-layer
@@ -86,7 +86,7 @@
         <new-intervention
           v-if="state.matches('displaying.intervention')"
           :search-result="state.context.searchResult"
-          @save="(intervention) => send('SAVE', { intervention })"
+          @save="() => send('SAVE')"
           @cancel="send('CANCEL')"
         />
       </q-dialog>
@@ -107,7 +107,10 @@ import {
 import 'mapbox-gl/dist/mapbox-gl.css'
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'
 import { useMachine } from '@xstate/vue'
-import { defineComponent, nextTick, ref } from '@vue/composition-api'
+import {
+  computed,
+  defineComponent, inject, nextTick, ref,
+} from '@vue/composition-api'
 import { Platform } from 'quasar'
 
 import SearchResult from '../components/SearchResult.vue'
@@ -158,6 +161,17 @@ export default defineComponent({
     const { state, send /* service */ } = useMachine(appMachine, {
       devTools: true,
     })
+
+    const interventionsService = inject('interventionsService')
+
+    const {
+      state: interventionsState,
+    } = interventionsService
+
+    const geojson = computed(() => ({
+      type: 'FeatureCollection',
+      features: interventionsState.value.context.allInterventions,
+    }))
 
     /**
      * Geocoder
@@ -234,6 +248,7 @@ export default defineComponent({
       send,
       onGeocoderResult,
       onDialogResize,
+      geojson,
     }
   },
 })

@@ -1,4 +1,4 @@
-import { SessionStorage } from 'quasar'
+// import { SessionStorage } from 'quasar'
 import { Machine, assign } from 'xstate'
 
 export default Machine(
@@ -17,10 +17,10 @@ export default Machine(
     },
     states: {
       loading: {
-        entry: ['rehydrateData'],
-        always: 'initialized',
+        // entry: ['rehydrateData'],
+        always: 'ready',
       },
-      initialized: {
+      ready: {
         on: {
           SEARCH: 'searching',
         },
@@ -37,7 +37,7 @@ export default Machine(
       },
       displaying: {
         on: {
-          CANCEL: '#appMachine.initialized',
+          CANCEL: '#appMachine.ready',
         },
         states: {
           result: {
@@ -50,10 +50,10 @@ export default Machine(
             on: {
               SAVE: {
                 actions: [
-                  'saveIntervention',
-                  'persistData'
+                  // 'saveIntervention',
+                  // 'persistData'
                 ],
-                target: '#appMachine.initialized',
+                target: '#appMachine.ready',
               },
               CANCEL: 'result',
             },
@@ -64,8 +64,8 @@ export default Machine(
     on: {
       CLEAR_STORAGE: {
         actions: [
-          'clearData',
-          'persistData'
+          // 'clearData',
+          // 'persistData'
         ],
       },
     },
@@ -78,7 +78,7 @@ export default Machine(
       clearSearchResult: assign({
         searchResult: { center: [] },
       }),
-      saveIntervention: assign({
+      /* saveIntervention: assign({
         interventionsData: (ctx, evt) => ({
           type: 'FeatureCollection',
           features: [
@@ -86,8 +86,8 @@ export default Machine(
             evt.intervention,
           ],
         }),
-      }),
-      persistData: (ctx) => {
+      }), */
+      /* persistData: (ctx) => {
         SessionStorage.set('interventionsData', ctx.interventionsData)
       },
       rehydrateData: assign({
@@ -95,13 +95,13 @@ export default Machine(
           type: 'FeatureCollection',
           features: [],
         },
-      }),
-      clearData: assign({
+      }), */
+      /* clearData: assign({
         interventionsData: {
           type: 'FeatureCollection',
           features: [],
         },
-      }),
+      }), */
     },
     guards: {
       isResultValid: (ctx, evt) => evt.result !== undefined,
