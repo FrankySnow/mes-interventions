@@ -12,6 +12,7 @@
     "cmstead.js-codeformer",
     "ghmcadams.lintlens",
     "cardinal90.multi-cursor-case-preserve",
+    "mylesmurphy.prettify-ts",
   ],
   "unwantedRecommendations": [
     "octref.vetur",
