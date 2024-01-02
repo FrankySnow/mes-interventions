@@ -2,8 +2,16 @@
   "recommendations": [
     "dbaeumer.vscode-eslint",
     "editorconfig.editorconfig",
-    "vue.volar",
-    "wayou.vscode-todo-highlight"
+    "wayou.vscode-todo-highlight",
+    "vue.vscode-typescript-vue-plugin",
+    "mattpocock.ts-error-translator",
+    "christian-kohler.path-intellisense",
+    "Vue.volar",
+    "usernamehw.errorlens",
+    "github.vscode-pull-request-github",
+    "cmstead.js-codeformer",
+    "ghmcadams.lintlens",
+    "cardinal90.multi-cursor-case-preserve",
   ],
   "unwantedRecommendations": [
     "octref.vetur",
