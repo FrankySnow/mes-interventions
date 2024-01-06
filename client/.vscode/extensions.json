@@ -13,6 +13,7 @@
     "ghmcadams.lintlens",
     "cardinal90.multi-cursor-case-preserve",
     "mylesmurphy.prettify-ts",
+    "dotenv.dotenv-vscode",
   ],
   "unwantedRecommendations": [
     "octref.vetur",
