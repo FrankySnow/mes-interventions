@@ -1,37 +1,47 @@
 <script setup lang="ts">
-import { date as QuasarDate, useQuasar } from 'quasar'
+import { date, useQuasar } from 'quasar'
 import { reactive, ref } from 'vue'
+import { collection, addDoc, getFirestore, Timestamp } from 'firebase/firestore'
+import { app } from 'boot/firebase'
 
-const $q = useQuasar()
+const { notify } = useQuasar()
+
+const db = getFirestore(app)
 
 const formValues = reactive({
-  date: QuasarDate.formatDate(Date.now(), 'YYYY/MM/DD'),
-  adresse: 'foo',
-  évènement: 'Incendie',
-  véhicule: 'Tonne',
-  rôle: 'T2',
-  remarques: 'Ct le fuun',
+  datetime: date.formatDate(Date.now(), 'YYYY-MM-DD'),
+  adresse: '',
+  évènement: '',
+  véhicule: '',
+  rôle: '',
+  remarques: '',
 })
 
 const loading = ref(false)
-const submit = () => {
+
+const submit = async () => {
   loading.value = true
-  setTimeout(() => {
-    loading.value = false
-    $q.notify(
-      "C'est sauvegardé mais pas pour de vrai 🤣",
-    )
-  }, 2000)
+  const docRef = await addDoc(collection(db, 'interventions'), {
+    ...formValues,
+    created_at: Timestamp.now(),
+    datetime: Timestamp.fromMillis(Date.parse(formValues.datetime)),
+  })
+  console.log(docRef.id)
+  notify(
+    "C'est sauvegardé 🔥",
+  )
+  loading.value = false
 }
+
+const qDateProxy = ref()
 </script>
 
 <template>
   <q-page class="col q-gutter-md q-pa-md">
     <q-input
-      v-model="formValues.date"
+      v-model="formValues.datetime"
       label="Date"
       outlined
-      mask="date"
     >
       <template #before>
         <q-icon name="event" />
@@ -47,7 +57,9 @@ const submit = () => {
             transition-hide="scale"
           >
             <q-date
-              v-model="formValues.date"
+              v-model="formValues.datetime"
+              mask="YYYY-MM-DD"
+              @update:model-value="() => qDateProxy.hide()"
             />
           </q-popup-proxy>
         </q-icon>
@@ -93,6 +105,7 @@ const submit = () => {
       v-model="formValues.remarques"
       type="textarea"
       label="Remarques"
+      rows="3"
       outlined
     >
       <template #before>
