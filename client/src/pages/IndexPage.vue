@@ -59,7 +59,7 @@ const submit = async () => {
 </script>
 
 <template>
-  <q-page class="col q-pa-sm">
+  <q-page class="col q-pa-sm bg-red-1">
     <q-list
       separator
     >
@@ -229,7 +229,7 @@ const submit = async () => {
       <q-btn
         fab
         icon="add"
-        color="primary"
+        color="red-8"
         @click="dialog=true"
       />
     </q-page-sticky>

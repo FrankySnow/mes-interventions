@@ -6,15 +6,24 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: MainLayout,
-    children: [{ path: '', component: IndexPage }],
+    children: [
+      {
+        path: '',
+        component: IndexPage,
+      },
+      {
+        path: '/:catchAll(.*)*',
+        component: () => import('pages/ErrorNotFound.vue'),
+      },
+    ],
   },
 
   // Always leave this as last one,
   // but you can also remove it
-  {
-    path: '/:catchAll(.*)*',
-    component: () => import('pages/ErrorNotFound.vue'),
-  },
+  // {
+  //   path: '/:catchAll(.*)*',
+  //   component: () => import('pages/ErrorNotFound.vue'),
+  // },
 ]
 
 export default routes
