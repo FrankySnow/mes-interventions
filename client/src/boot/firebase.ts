@@ -1,5 +1,6 @@
 import { boot } from 'quasar/wrappers'
 import { initializeApp } from 'firebase/app'
+import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
 
 function throwError (key: string): never {
   throw new Error(`process.env is missing key ${key}`)
@@ -15,6 +16,11 @@ const config = {
 }
 
 export const app = initializeApp(config)
+export const db = getFirestore(app)
+
+if (process.env.DEV) {
+  connectFirestoreEmulator(db, '127.0.0.1', 8080)
+}
 
 // "async" is optional;
 // more info on params: https://v2.quasar.dev/quasar-cli/boot-files

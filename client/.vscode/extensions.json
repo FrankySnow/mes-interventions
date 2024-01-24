@@ -14,6 +14,7 @@
     "cardinal90.multi-cursor-case-preserve",
     "mylesmurphy.prettify-ts",
     "dotenv.dotenv-vscode",
+    "toba.vsfire",
   ],
   "unwantedRecommendations": [
     "octref.vetur",

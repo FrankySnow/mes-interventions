@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { date, useQuasar } from 'quasar'
 import { reactive, ref } from 'vue'
-import { collection, addDoc, getFirestore, Timestamp, DocumentData } from 'firebase/firestore'
-import { app } from 'boot/firebase'
+import { collection, addDoc, Timestamp, DocumentData } from 'firebase/firestore'
+import { db } from 'boot/firebase'
 import { useFirestore } from '@vueuse/firebase'
 
 const { notify } = useQuasar()
 
-const db = getFirestore(app)
 const collectionRef = collection(db, 'interventions')
 
 type DocData = {
