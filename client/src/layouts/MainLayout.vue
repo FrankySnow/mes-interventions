@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { useAuth } from '@vueuse/firebase'
+import { auth } from 'src/boot/firebase'
 import { ref } from 'vue'
 
 const tab = ref()
+const { isAuthenticated } = useAuth(auth)
 </script>
 
 <template>
@@ -28,6 +31,7 @@ const tab = ref()
           to="/"
           icon="calendar_view_day"
           class="col-3"
+          :disable="!isAuthenticated"
         />
         <q-route-tab
           name="carte"
@@ -35,6 +39,7 @@ const tab = ref()
           to="map"
           icon="map"
           class="col-3"
+          :disable="!isAuthenticated"
         />
         <q-route-tab
           name="stats"
@@ -42,6 +47,7 @@ const tab = ref()
           to="stats"
           icon="bar_chart"
           class="col-3"
+          :disable="!isAuthenticated"
         />
         <q-route-tab
           name="profil"

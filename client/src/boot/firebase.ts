@@ -1,6 +1,7 @@
 import { boot } from 'quasar/wrappers'
 import { initializeApp } from 'firebase/app'
 import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
+import { User, connectAuthEmulator, getAuth, onAuthStateChanged } from 'firebase/auth'
 
 function throwError (key: string): never {
   throw new Error(`process.env is missing key ${key}`)
@@ -17,13 +18,39 @@ const config = {
 
 export const app = initializeApp(config)
 export const db = getFirestore(app)
+export const auth = getAuth()
+auth.languageCode = 'fr'
 
 if (process.env.DEV) {
   connectFirestoreEmulator(db, '127.0.0.1', 8080)
+  connectAuthEmulator(auth, 'http://127.0.0.1:9099', {
+    disableWarnings: true,
+  })
 }
 
-// "async" is optional;
-// more info on params: https://v2.quasar.dev/quasar-cli/boot-files
-export default boot(async (/* { app, router, ... } */) => {
-  // something to do
+function isAuthenticated (): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (user) => {
+        unsubscribe()
+        resolve(user !== null)
+      },
+      reject,
+    )
+  })
+}
+
+export default boot(async ({ router }) => {
+  router.beforeEach(async (to) => {
+    const authenticated = await isAuthenticated().catch(console.error)
+    if (
+      !authenticated && to.name !== 'Profil'
+    ) {
+      return {
+        name: 'Profil',
+        query: { redirect: to.fullPath },
+      }
+    }
+  })
 })

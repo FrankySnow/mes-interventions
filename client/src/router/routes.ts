@@ -1,6 +1,7 @@
 import { RouteRecordRaw } from 'vue-router'
 import MainLayout from 'layouts/MainLayout.vue'
 import IndexPage from 'pages/IndexPage.vue'
+import ProfilPage from 'pages/ProfilPage.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -10,6 +11,11 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         component: IndexPage,
+      },
+      {
+        name: 'Profil',
+        path: '/profil',
+        component: ProfilPage,
       },
       {
         path: '/:catchAll(.*)*',
