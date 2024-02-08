@@ -1,27 +1,12 @@
 <script setup lang='ts'>
-import { Timestamp, addDoc, collection } from 'firebase/firestore'
-import { date, useQuasar } from 'quasar'
-import { db } from 'src/boot/firebase'
+import { date } from 'quasar'
+import { useInterventionsStore, InterventionDocData } from 'src/stores/interventions'
 import { reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
-
-const { notify } = useQuasar()
-const router = useRouter()
 
 const qDateProxy = ref()
-const collectionRef = collection(db, 'interventions')
-const loading = ref(false)
+const store = useInterventionsStore()
 
-type DocData = {
-  datetime: string,
-  adresse: string,
-  évènement: string,
-  véhicule: string,
-  rôle: string,
-  remarques: string,
-}
-
-const formValues = reactive<DocData>({
+const formValues = reactive<InterventionDocData>({
   datetime: date.formatDate(Date.now(), 'YYYY-MM-DD'),
   adresse: '',
   évènement: '',
@@ -31,29 +16,8 @@ const formValues = reactive<DocData>({
 })
 
 const submit = async () => {
-  loading.value = true
-  try {
-    const docRef = await addDoc(collectionRef, {
-      ...formValues,
-      created_at: Timestamp.now(),
-      datetime: Timestamp.fromMillis(Date.parse(formValues.datetime)),
-    })
-    console.log(docRef.id)
-    notify({
-      message: `C'est sauvegardé 🔥 : ${docRef.id}`,
-      type: 'positive',
-    })
-    router.push('/')
-  } catch (error) {
-    notify({
-      message: `Erreur : ${error}`,
-      type: 'negative',
-    })
-  } finally {
-    loading.value = false
-  }
+  await store.createNewIntervention(formValues)
 }
-
 </script>
 
 <template>
@@ -135,7 +99,7 @@ const submit = async () => {
       </q-input>
       <div class="row">
         <q-btn
-          :loading="loading"
+          :loading="store.loading"
           color="red-8"
           label="sauvegarder"
           class="full-width"

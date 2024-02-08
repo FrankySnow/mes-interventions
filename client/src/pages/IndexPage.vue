@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import { useFirestore } from '@vueuse/firebase'
-import { db } from 'boot/firebase'
-import { collection } from 'firebase/firestore'
+import { storeToRefs } from 'pinia'
+import { useInterventionsStore } from 'src/stores/interventions'
 
-const collectionRef = collection(db, 'interventions')
-
-const interventions = useFirestore(collectionRef)
+const { interventions, interventionsCount } = storeToRefs(useInterventionsStore())
 </script>
 
 <template>
@@ -15,7 +12,7 @@ const interventions = useFirestore(collectionRef)
       class="bg-white rounded-borders"
     >
       <q-item-label header>
-        {{ !interventions || interventions.length == 0 ? `Aucune` : interventions.length }} intervention{{ interventions && interventions.length > 1 ? 's' : '' }}
+        {{ interventionsCount || 'Aucune' }} intervention{{ interventionsCount > 1 ? 's' : '' }}
       </q-item-label>
       <q-item
         v-for="intervention in interventions"
