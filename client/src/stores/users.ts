@@ -1,8 +1,9 @@
-import { defineStore } from 'pinia'
 import { useAuth } from '@vueuse/firebase'
 import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth'
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
+import { defineStore } from 'pinia'
 import { useQuasar } from 'quasar'
-import { auth } from 'src/boot/firebase'
+import { auth, db } from 'src/boot/firebase'
 import { useRoute, useRouter } from 'vue-router'
 
 export const useUsersStore = defineStore('users', () => {
@@ -15,6 +16,13 @@ export const useUsersStore = defineStore('users', () => {
   const logInWithGoogle = async () => {
     try {
       const { user } = await signInWithPopup(auth, provider)
+      const userDocRef = doc(db, 'users', user.uid)
+      const userDoc = await getDoc(userDocRef)
+      if (!userDoc.exists()) {
+        await setDoc(userDocRef, {
+          created_at: serverTimestamp(),
+        })
+      }
       notify({
         type: 'positive',
         message: 'Connecté avec Google',
