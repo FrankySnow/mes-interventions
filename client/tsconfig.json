@@ -2,7 +2,8 @@
   "extends": "@quasar/app-vite/tsconfig-preset",
   "compilerOptions": {
     "baseUrl": ".",
-    "exactOptionalPropertyTypes": true, // https://tkdodo.eu/blog/optional-vs-undefined
+    // https://github.com/statelyai/xstate/issues/4613
+    // "exactOptionalPropertyTypes": true, // https://tkdodo.eu/blog/optional-vs-undefined
     "noUncheckedIndexedAccess": true, // https://www.totaltypescript.com/tsconfig-cheat-sheet#strictness
   }
 }
