@@ -1,50 +1,14 @@
 <script setup lang='ts'>
-import { createSkyInspector } from '@statelyai/inspect'
-import { useActor } from '@xstate/vue'
-import { useQuasar } from 'quasar'
-import { authMachine } from 'src/actors/authMachine'
-import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useSelector } from '@xstate/vue'
+import { authKey } from 'src/keys'
+import { inject } from 'vue'
 
-const { inspect } = createSkyInspector()
-const { notify } = useQuasar()
-const { query } = useRoute()
-const router = useRouter()
+const throwError = () => { throw new Error('authActor not provided') }
+const authActor = inject(authKey) || throwError()
 
-const { send, snapshot } = useActor(authMachine.provide({
-  actions: {
-    notifySuccess: (_, params: { message: string }) => notify({
-      type: 'positive',
-      message: params.message,
-    }),
-    notifyError: (_, params: { error: string }) => notify({
-      type: 'negative',
-      message: `Erreur : ${params.error}`,
-      timeout: 0,
-      actions: [
-        {
-          icon: 'close',
-          color: 'white',
-          handler: () => send({ type: 'clear_error' }),
-        },
-        {
-          icon: 'replay',
-          color: 'white',
-          handler: () => send({ type: 'retry' }),
-        },
-      ],
-    }),
-    redirectRoute: async () => {
-      if (query.redirect && !Array.isArray(query.redirect)) {
-        await router.push(query.redirect)
-      }
-    },
-  },
-}), {
-  inspect,
-})
-
-const user = computed(() => snapshot.value.context.user)
+const { send } = authActor
+const snapshot = useSelector(authActor, s => s)
+const user = useSelector(authActor, s => s.context.user)
 </script>
 
 <template>
