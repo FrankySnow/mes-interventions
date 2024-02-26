@@ -1,13 +1,13 @@
 <script setup lang='ts'>
 import { useSelector } from '@xstate/vue'
-import { authKey } from 'src/keys'
-import { inject } from 'vue'
+import { useAuthActor } from 'src/actors/useAuthActor'
 
-const throwError = () => { throw new Error('authActor not provided') }
-const authActor = inject(authKey) || throwError()
+const {
+  send,
+  snapshot,
+  actorRef: authActor,
+} = useAuthActor()
 
-const { send } = authActor
-const snapshot = useSelector(authActor, s => s)
 const user = useSelector(authActor, s => s.context.user)
 </script>
 
@@ -21,16 +21,16 @@ const user = useSelector(authActor, s => s.context.user)
         Compte Google
       </q-item-label>
 
-      <q-item v-if="snapshot.matches('Authenticated')">
+      <q-item v-if="snapshot.matches('Authenticated') && user">
         <q-item-section avatar>
           <q-avatar>
-            <img :src="user?.photoURL || 'src/assets/avatar-blank.svg'">
+            <img :src="user.photoURL || 'src/assets/avatar-blank.svg'">
           </q-avatar>
         </q-item-section>
         <q-item-section>
-          <q-item-label>{{ user?.displayName }}</q-item-label>
+          <q-item-label>{{ user.displayName }}</q-item-label>
           <q-item-label caption>
-            {{ user?.email }}
+            {{ user.email }}
           </q-item-label>
         </q-item-section>
       </q-item>
