@@ -12,10 +12,10 @@ const user = useSelector(authActor, s => s.context.user)
 </script>
 
 <template>
-  <q-page class="q-pa-md bg-red-1">
+  <q-page class="q-pa-md bg-grey-2">
     <q-list
       padding
-      class="bg-white rounded-borders"
+      class="bg-white my-border"
     >
       <q-item-label header>
         Compte Google
@@ -31,6 +31,23 @@ const user = useSelector(authActor, s => s.context.user)
           <q-item-label>{{ user.displayName }}</q-item-label>
           <q-item-label caption>
             {{ user.email }}
+          </q-item-label>
+        </q-item-section>
+      </q-item>
+      <q-item v-if="snapshot.matches('Authenticating') || snapshot.matches('AuthError')">
+        <q-item-section avatar>
+          <q-skeleton type="QAvatar" />
+        </q-item-section>
+
+        <q-item-section>
+          <q-item-label>
+            <q-skeleton type="text" />
+          </q-item-label>
+          <q-item-label caption>
+            <q-skeleton
+              type="text"
+              width="65%"
+            />
           </q-item-label>
         </q-item-section>
       </q-item>

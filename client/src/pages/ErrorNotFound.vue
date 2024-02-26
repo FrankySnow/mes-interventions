@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-red-3 text-red-2 text-center q-pa-md flex flex-center">
+  <q-page class="bg-grey-2 text-red-3 text-center q-pa-md flex flex-center">
     <div>
       <div style="font-size: 30vh">
         404
@@ -9,7 +9,7 @@
         class="text-h2"
         style="opacity:.4"
       >
-        Oops. Nothing here...
+        Coming soon !
       </div>
     </div>
   </q-page>
