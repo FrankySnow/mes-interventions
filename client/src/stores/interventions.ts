@@ -1,11 +1,12 @@
 import { useFirestore } from '@vueuse/firebase'
+import { useSelector } from '@xstate/vue'
 import { db } from 'boot/firebase'
 import { Timestamp, addDoc, collection } from 'firebase/firestore'
-import { defineStore, storeToRefs } from 'pinia'
+import { defineStore } from 'pinia'
 import { useQuasar } from 'quasar'
+import { useAuthActor } from 'src/actors/useAuthActor'
 import { computed, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
-import { useUsersStore } from './users'
 
 export type InterventionDocData = {
   datetime: string,
@@ -16,12 +17,16 @@ export type InterventionDocData = {
   remarques: string,
 }
 export const useInterventionsStore = defineStore('interventions', () => {
-  const { user } = storeToRefs(useUsersStore())
   const { notify } = useQuasar()
   const router = useRouter()
   const loading = ref(false)
   const interventionsCollection = ref()
   const interventions = useFirestore(interventionsCollection)
+  const {
+    actorRef: authActor,
+  } = useAuthActor()
+
+  const user = useSelector(authActor, s => s.context.user)
 
   // Se déclenche une fois que le `user` est correctement chargé OU lorsqu'il change après une déconnexion
   watchEffect(() => {
