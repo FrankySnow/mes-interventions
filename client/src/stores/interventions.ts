@@ -28,10 +28,12 @@ export const useInterventionsStore = defineStore('interventions', () => {
 
   const user = useSelector(authActor, s => s.context.user)
 
-  // Se déclenche une fois que le `user` est correctement chargé OU lorsqu'il change après une déconnexion
+  // Synchronise la collection avec l'user et débranche la souscription lorsqu'il est déconnecté
   watchEffect(() => {
     if (user && user.value) {
       interventionsCollection.value = collection(db, 'users', user.value.uid, 'interventions')
+    } else {
+      interventionsCollection.value = null
     }
   })
 
