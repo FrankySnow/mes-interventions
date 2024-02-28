@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { useAuth } from '@vueuse/firebase'
-import { auth } from 'src/boot/firebase'
 import { ref } from 'vue'
+import { useAuthActor } from 'src/actors/useAuthActor'
+import { useSelector } from '@xstate/vue'
 
+const { actorRef: authActor } = useAuthActor()
+
+const isAuthenticated = useSelector(authActor, s => s.matches('Authenticated'))
 const tab = ref()
-const { isAuthenticated } = useAuth(auth)
 </script>
 
 <template>
