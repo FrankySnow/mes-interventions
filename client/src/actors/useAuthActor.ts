@@ -9,7 +9,7 @@ import { Actor, SnapshotFrom } from 'xstate'
 
 export const authKey = Symbol('auth') as InjectionKey<Actor<typeof authMachine>>
 
-export function provideAuthActor () : void {
+export function provideAuthActor (): void {
   const { inspect } = createSkyInspector()
   const { notify } = useQuasar()
   const { query } = useRoute()
@@ -51,7 +51,7 @@ export function provideAuthActor () : void {
   provide(authKey, actorRef)
 }
 
-export function useAuthActor () : {
+export function useAuthActor (): {
   snapshot: Ref<SnapshotFrom<typeof authMachine>>,
   send: Actor<typeof authMachine>['send'],
   actorRef: Actor<typeof authMachine>,

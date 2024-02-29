@@ -15,7 +15,7 @@ const formValues = reactive<InterventionDocData>({
   remarques: '',
 })
 
-const submit = async () => {
+const submit = async (): Promise<void> => {
   await store.createNewIntervention(formValues)
 }
 </script>

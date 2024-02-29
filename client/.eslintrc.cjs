@@ -90,8 +90,7 @@ module.exports = {
 
     quotes: ['warn', 'single', { avoidEscape: true }],
 
-    // this rule, if on, would require explicit return type on the `render` function
-    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/explicit-function-return-type': ['warn', { allowExpressions: true }],
 
     // in plain CommonJS modules, you can't use `import foo = require('foo')` to pass this rule, so it has to be disabled
     '@typescript-eslint/no-var-requires': 'off',
@@ -100,6 +99,8 @@ module.exports = {
     // does not work with type definitions
     'no-unused-vars': 'warn',
     '@typescript-eslint/no-unused-vars': 'warn',
+
+    '@typescript-eslint/type-annotation-spacing': ['warn'],
 
     // allow debugger during development only
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
