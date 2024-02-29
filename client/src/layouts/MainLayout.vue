@@ -16,8 +16,8 @@ const tab = ref()
     </q-page-container>
 
     <q-footer
-      elevated
-      class="bg-red-8 text-white"
+      bordered
+      class="bg-white text-grey-7"
     >
       <q-tabs
         v-model="tab"
@@ -25,7 +25,7 @@ const tab = ref()
         :dense="!$q.platform.is.desktop"
         indicator-color="transparent"
         :inline-label="$q.platform.is.desktop"
-        class="footer-tabs"
+        active-color="red-7"
       >
         <q-route-tab
           name="liste"
@@ -66,9 +66,14 @@ const tab = ref()
 <style scoped>
 :deep(.q-tab__label) {
   font-size: 12px;
-  font-weight: 200;
+  font-weight: 300;
+  letter-spacing: 0.8px;
 }
 
 :deep(.q-tab--inactive) {
-  opacity: 0.5;
+  opacity: 0.9;
+}
+
+:deep(.q-tab--active .q-tab__label) {
+  font-weight: 600;
 }</style>
