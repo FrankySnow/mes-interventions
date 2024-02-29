@@ -3,8 +3,8 @@ import { useActor, useSelector } from '@xstate/vue'
 import { useQuasar } from 'quasar'
 import { authMachine } from 'src/actors/authMachine'
 import type { InjectionKey, Ref } from 'vue'
-import { inject, provide } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { inject, provide, toValue } from 'vue'
+import { useRouter } from 'vue-router'
 import { Actor, SnapshotFrom } from 'xstate'
 
 export const authKey = Symbol('auth') as InjectionKey<Actor<typeof authMachine>>
@@ -12,7 +12,6 @@ export const authKey = Symbol('auth') as InjectionKey<Actor<typeof authMachine>>
 export function provideAuthActor (): void {
   const { inspect } = createSkyInspector()
   const { notify } = useQuasar()
-  const { query } = useRoute()
   const router = useRouter()
 
   const { actorRef } = useActor(authMachine.provide({
@@ -39,8 +38,9 @@ export function provideAuthActor (): void {
         ],
       }),
       redirectRoute: async () => {
-        if (query.redirect && !Array.isArray(query.redirect)) {
-          await router.push(query.redirect)
+        const { redirect } = toValue(router.currentRoute).query
+        if (typeof redirect === 'string') {
+          await router.push(redirect)
         }
       },
     },
