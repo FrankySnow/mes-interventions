@@ -1,7 +1,8 @@
+import { FirebaseApp, initializeApp } from 'firebase/app'
+import { Auth, connectAuthEmulator, getAuth } from 'firebase/auth'
+import { Firestore, connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
 import { boot } from 'quasar/wrappers'
-import { initializeApp } from 'firebase/app'
-import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
-import { User, connectAuthEmulator, getAuth, onAuthStateChanged } from 'firebase/auth'
+import { VueFire, VueFireAuth, getCurrentUser } from 'vuefire'
 
 function throwError (key: string): never {
   throw new Error(`process.env is missing key ${key}`)
@@ -16,9 +17,9 @@ const config = {
   appId: process.env.FIREBASE_APP_ID || throwError('FIREBASE_APP_ID'),
 }
 
-export const app = initializeApp(config)
-export const db = getFirestore(app)
-export const auth = getAuth()
+export const firebaseApp: FirebaseApp = initializeApp(config)
+export const db: Firestore = getFirestore(firebaseApp)
+export const auth: Auth = getAuth()
 auth.languageCode = 'fr'
 
 if (process.env.DEV) {
@@ -28,24 +29,23 @@ if (process.env.DEV) {
   })
 }
 
-function isAuthenticated (): Promise<boolean> {
-  return new Promise((resolve, reject) => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (user) => {
-        unsubscribe()
-        resolve(user !== null)
-      },
-      reject,
-    )
-  })
-}
+export default boot(async ({ app, router }) => {
+  console.info('boot/firebase')
 
-export default boot(async ({ router }) => {
+  app.use(VueFire, {
+    firebaseApp,
+    modules: [
+      VueFireAuth(),
+    ],
+  })
+
   router.beforeEach(async (to) => {
-    const authenticated = await isAuthenticated().catch(console.error)
+    const isUnauthenticated: boolean | void = await getCurrentUser()
+      .then(user => !user)
+      .catch(console.error)
+
     if (
-      !authenticated && to.name !== 'Profil'
+      isUnauthenticated && to.name !== 'Profil'
     ) {
       return {
         name: 'Profil',

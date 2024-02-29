@@ -1,6 +1,7 @@
-import { AuthError, GoogleAuthProvider, User, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth'
+import { AuthError, GoogleAuthProvider, User, signInWithPopup, signOut } from 'firebase/auth'
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
 import { auth, db } from 'src/boot/firebase'
+import { getCurrentUser as getCurrentUserFromVueFire } from 'vuefire'
 import { assign, fromPromise, log, setup } from 'xstate'
 
 const provider = new GoogleAuthProvider()
@@ -21,17 +22,8 @@ const logout = fromPromise(async () => {
   await signOut(auth)
 })
 
-const getCurrentUser = fromPromise((): Promise<User | null> => {
-  return new Promise((resolve, reject) => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (user) => {
-        unsubscribe()
-        resolve(user)
-      },
-      reject,
-    )
-  })
+const getCurrentUser = fromPromise(async (): Promise<User | null> => {
+  return await getCurrentUserFromVueFire() ?? null
 })
 
 export const authMachine = setup({

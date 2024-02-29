@@ -1,12 +1,13 @@
-import { useFirestore } from '@vueuse/firebase'
 import { useSelector } from '@xstate/vue'
 import { db } from 'boot/firebase'
-import { Timestamp, addDoc, collection } from 'firebase/firestore'
+import { User } from 'firebase/auth'
+import { CollectionReference, Timestamp, addDoc, collection } from 'firebase/firestore'
 import { defineStore } from 'pinia'
 import { useQuasar } from 'quasar'
 import { useAuthActor } from 'src/actors/useAuthActor'
-import { computed, ref, watchEffect } from 'vue'
+import { Ref, computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useCollection } from 'vuefire'
 
 export type InterventionDocData = {
   datetime: string,
@@ -20,27 +21,27 @@ export const useInterventionsStore = defineStore('interventions', () => {
   const { notify } = useQuasar()
   const router = useRouter()
   const loading = ref(false)
-  const interventionsCollection = ref()
-  const interventions = useFirestore(interventionsCollection)
   const {
     actorRef: authActor,
   } = useAuthActor()
 
   const user = useSelector(authActor, s => s.context.user)
 
-  // Synchronise la collection avec l'user et débranche la souscription lorsqu'il est déconnecté
-  watchEffect(() => {
-    if (user && user.value) {
-      interventionsCollection.value = collection(db, 'users', user.value.uid, 'interventions')
-    } else {
-      interventionsCollection.value = null
+  function getInterventionsCollection (user: Ref<User | null>): CollectionReference | null {
+    if (user.value) {
+      return collection(db, 'users', user.value.uid, 'interventions')
     }
-  })
+    return null
+  }
+  // Synchronise la collection avec l'user et débranche la souscription lorsqu'il est déconnecté
+  const interventions = useCollection(getInterventionsCollection(user))
 
   async function createNewIntervention (formValues: InterventionDocData): Promise<void> {
     loading.value = true
     try {
-      const docRef = await addDoc(interventionsCollection.value, {
+      const collection = getInterventionsCollection(user)
+      if (!collection) throw new Error('unauthenticated')
+      const docRef = await addDoc(collection, {
         ...formValues,
         created_at: Timestamp.now(),
         datetime: Timestamp.fromMillis(Date.parse(formValues.datetime)),
