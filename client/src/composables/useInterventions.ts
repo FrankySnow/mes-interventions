@@ -1,13 +1,12 @@
 import { useSelector } from '@xstate/vue'
 import { db } from 'boot/firebase'
 import { User } from 'firebase/auth'
-import { CollectionReference, Timestamp, addDoc, collection } from 'firebase/firestore'
-import { defineStore } from 'pinia'
+import { CollectionReference, DocumentData, Timestamp, addDoc, collection } from 'firebase/firestore'
 import { useQuasar } from 'quasar'
 import { useAuthActor } from 'src/actors/useAuthActor'
-import { Ref, computed, ref } from 'vue'
+import { ComputedRef, Ref, computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useCollection } from 'vuefire'
+import { _RefFirestore, useCollection } from 'vuefire'
 
 export type InterventionDocData = {
   datetime: string,
@@ -17,7 +16,12 @@ export type InterventionDocData = {
   rôle: string,
   remarques: string,
 }
-export const useInterventionsStore = defineStore('interventions', () => {
+export function useInterventions (): {
+  interventions: _RefFirestore<DocumentData[]>
+  loading: Ref<boolean>
+  interventionsCount: ComputedRef<number>
+  createNewIntervention: (formValues: InterventionDocData) => Promise<void>
+  } {
   const { notify } = useQuasar()
   const router = useRouter()
   const loading = ref(false)
@@ -81,4 +85,4 @@ export const useInterventionsStore = defineStore('interventions', () => {
     interventionsCount,
     createNewIntervention,
   }
-})
+}

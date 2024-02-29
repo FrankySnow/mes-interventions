@@ -1,12 +1,20 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
-import { useInterventionsStore } from 'src/stores/interventions'
+import { useInterventions } from 'src/composables/useInterventions'
 
-const { interventions, interventionsCount } = storeToRefs(useInterventionsStore())
+const { interventions, interventionsCount } = useInterventions()
+const { data, pending } = interventions
 </script>
 
 <template>
   <q-page class="col q-pa-md bg-grey-2">
+    <q-inner-loading
+      :showing="pending"
+    >
+      <q-spinner
+        size="50px"
+        color="red-6"
+      />
+    </q-inner-loading>
     <div class="text-subtitle2 text-weight-regular text-grey-7">
       {{ interventionsCount || 'Aucune' }} intervention{{ interventionsCount > 1 ? 's' : '' }}
     </div>
@@ -16,7 +24,7 @@ const { interventions, interventionsCount } = storeToRefs(useInterventionsStore(
       class="bg-white my-border"
     >
       <q-item
-        v-for="intervention in interventions"
+        v-for="intervention in data"
         :key="intervention.id"
         v-ripple
         clickable

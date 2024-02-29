@@ -1,10 +1,10 @@
 <script setup lang='ts'>
 import { date } from 'quasar'
-import { useInterventionsStore, InterventionDocData } from 'src/stores/interventions'
+import { useInterventions, InterventionDocData } from 'src/composables/useInterventions'
 import { reactive, ref } from 'vue'
 
 const qDateProxy = ref()
-const store = useInterventionsStore()
+const { loading, createNewIntervention } = useInterventions()
 
 const formValues = reactive<InterventionDocData>({
   datetime: date.formatDate(Date.now(), 'YYYY-MM-DD'),
@@ -16,7 +16,7 @@ const formValues = reactive<InterventionDocData>({
 })
 
 const submit = async (): Promise<void> => {
-  await store.createNewIntervention(formValues)
+  await createNewIntervention(formValues)
 }
 </script>
 
@@ -99,7 +99,7 @@ const submit = async (): Promise<void> => {
       </q-input>
       <div class="row">
         <q-btn
-          :loading="store.loading"
+          :loading="loading"
           color="red-8"
           label="sauvegarder"
           class="full-width"
