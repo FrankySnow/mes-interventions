@@ -15,7 +15,7 @@
       "skipFiles": [
         "${workspaceFolder}/node_modules/**/*.js"
       ],
-      "preLaunchTask": "quasar dev",
+      "preLaunchTask": "dev",
       "smartStep": true
     }
   ]

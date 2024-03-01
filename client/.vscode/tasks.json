@@ -5,8 +5,8 @@
       "type": "shell",
       "command": "npm run dev",
       "problemMatcher": [],
-      "label": "quasar dev",
-      "detail": "quasar dev",
+      "label": "dev",
+      "detail": "quasar + firebase emulators",
       "isBackground": true
     }
   ]
