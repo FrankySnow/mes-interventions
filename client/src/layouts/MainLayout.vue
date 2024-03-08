@@ -1,12 +1,11 @@
 <script setup lang="ts">
+import { useAuthActor } from 'boot/auth'
 import { ref } from 'vue'
-import { useAuthActor } from 'src/actors/useAuthActor'
-import { useSelector } from '@xstate/vue'
 
-const { actorRef: authActor } = useAuthActor()
+const { matches } = useAuthActor()
 
-const isAuthenticated = useSelector(authActor, s => s.matches('Authenticated'))
-const tab = ref()
+const isAuthenticated = matches('Authenticated')
+const tab = ref('liste')
 </script>
 
 <template>

@@ -2,7 +2,7 @@ import { FirebaseApp, initializeApp } from 'firebase/app'
 import { Auth, connectAuthEmulator, getAuth } from 'firebase/auth'
 import { Firestore, connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
 import { boot } from 'quasar/wrappers'
-import { VueFire, VueFireAuth, getCurrentUser } from 'vuefire'
+import { VueFire, VueFireAuth } from 'vuefire'
 
 function throwError (key: string): never {
   throw new Error(`process.env is missing key ${key}`)
@@ -29,7 +29,7 @@ if (process.env.DEV) {
   })
 }
 
-export default boot(async ({ app, router }) => {
+export default boot(async ({ app }) => {
   console.info('boot/firebase')
 
   app.use(VueFire, {
@@ -37,20 +37,5 @@ export default boot(async ({ app, router }) => {
     modules: [
       VueFireAuth(),
     ],
-  })
-
-  router.beforeEach(async (to) => {
-    const isUnauthenticated: boolean | void = await getCurrentUser()
-      .then(user => !user)
-      .catch(console.error)
-
-    if (
-      isUnauthenticated && to.name !== 'Profil'
-    ) {
-      return {
-        name: 'Profil',
-        query: { redirect: to.fullPath },
-      }
-    }
   })
 })

@@ -1,14 +1,13 @@
 <script setup lang='ts'>
-import { useSelector } from '@xstate/vue'
-import { useAuthActor } from 'src/actors/useAuthActor'
+import { useAuthActor } from 'boot/auth'
 
 const {
   send,
+  select,
   snapshot,
-  actorRef: authActor,
 } = useAuthActor()
 
-const user = useSelector(authActor, s => s.context.user)
+const user = select(s => s.context.user)
 </script>
 
 <template>
