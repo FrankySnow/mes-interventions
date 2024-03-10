@@ -12,14 +12,13 @@ const user = select(s => s.context.user)
 
 <template>
   <q-page class="q-pa-md bg-grey-2">
+    <div class="text-subtitle2 text-weight-regular text-grey-7 q-mb-sm">
+      Compte Google
+    </div>
     <q-list
       padding
       class="bg-white my-border"
     >
-      <q-item-label header>
-        Compte Google
-      </q-item-label>
-
       <q-item v-if="snapshot.matches('Authenticated') && user">
         <q-item-section avatar>
           <q-avatar>
@@ -33,7 +32,7 @@ const user = select(s => s.context.user)
           </q-item-label>
         </q-item-section>
       </q-item>
-      <q-item v-if="snapshot.matches('Authenticating') || snapshot.matches('AuthError')">
+      <q-item v-if="snapshot.matches('Authenticating') || snapshot.matches('AuthError') || snapshot.matches('CheckingAuthStatus')">
         <q-item-section avatar>
           <q-skeleton type="QAvatar" />
         </q-item-section>
@@ -85,3 +84,8 @@ const user = select(s => s.context.user)
     </q-list>
   </q-page>
 </template>
+
+<style scoped>
+.text-subtitle2 {
+  letter-spacing: 0.5px;
+}</style>

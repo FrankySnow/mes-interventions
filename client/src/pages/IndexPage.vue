@@ -15,7 +15,7 @@ const { data, pending } = interventions
         color="red-6"
       />
     </q-inner-loading>
-    <div class="text-subtitle2 text-weight-regular text-grey-7">
+    <div class="text-subtitle2 text-weight-regular text-grey-7 q-mb-sm">
       {{ interventionsCount || 'Aucune' }} intervention{{ interventionsCount > 1 ? 's' : '' }}
     </div>
     <q-list
@@ -61,3 +61,8 @@ const { data, pending } = interventions
     </q-page-sticky>
   </q-page>
 </template>
+
+<style scoped>
+.text-subtitle2 {
+  letter-spacing: 0.5px;
+}</style>
