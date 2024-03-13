@@ -4,17 +4,21 @@ import { Firestore, connectFirestoreEmulator, getFirestore } from 'firebase/fire
 import { boot } from 'quasar/wrappers'
 import { VueFire, VueFireAuth } from 'vuefire'
 
-function throwError (key: string): never {
-  throw new Error(`process.env is missing key ${key}`)
+function getEnv (key: string): string {
+  const env = process.env[key]
+  if (env === undefined) {
+    throw new Error(`process.env is missing key ${key}`)
+  }
+  return env
 }
 
 const config = {
-  apiKey: process.env.FIREBASE_API_KEY || throwError('FIREBASE_API_KEY'),
-  authDomain: process.env.FIREBASE_AUTH_DOMAIN || throwError('FIREBASE_AUTH_DOMAIN'),
-  projectId: process.env.FIREBASE_PROJECT_ID || throwError('FIREBASE_PROJECT_ID'),
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET || throwError('FIREBASE_STORAGE_BUCKET'),
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || throwError('FIREBASE_MESSAGING_SENDER_ID'),
-  appId: process.env.FIREBASE_APP_ID || throwError('FIREBASE_APP_ID'),
+  apiKey: getEnv('FIREBASE_API_KEY'),
+  authDomain: getEnv('FIREBASE_AUTH_DOMAIN'),
+  projectId: getEnv('FIREBASE_PROJECT_ID'),
+  storageBucket: getEnv('FIREBASE_STORAGE_BUCKET'),
+  messagingSenderId: getEnv('FIREBASE_MESSAGING_SENDER_ID'),
+  appId: getEnv('FIREBASE_APP_ID'),
 }
 
 export const firebaseApp: FirebaseApp = initializeApp(config)
